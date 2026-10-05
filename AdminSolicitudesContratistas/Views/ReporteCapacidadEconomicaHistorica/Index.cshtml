@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>REPORTE DE CAPACIDAD ECONÓMICA HISTÓRICA</h2>
+
+
+@Html.AntiForgeryToken()
+
+
+<style>
+    .gridFiltro {
+        width: 100%;
+        height: 100px;
+    }
+
+    .grid {
+        width: 100%;
+        height: 800px;
+    }
+
+    .numericCell {
+        text-align: right;
+    }
+</style>
+
+
+
+
+<div id="divCargando" class="alert alert-warning" role="alert">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    <span class="sr-only"> Espere mientras se cargan los registros...</span>
+</div>
+
+
+<div ng-app="gridRepCapacidadEconomicaHistorica">
+    <div ng-controller="MainCtrlCapacidadEconomicaHistorica as $ctrl">
+
+        @*<div class="alert alert-warning" role="alert" id="alertMensajes">
+                <label id="lblMensajeTablaSolicitudes"></label>
+
+            </div>*@
+
+        <br />
+
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <button type="button" id="btnDownloadExcel" class="btn btn-success" ng-click="$ctrl.DownloadExcel()" title="DESCARGAR EN EXCEL">
+                    @*<span class=""></span>*@
+                    Exportar a Excel
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+                <button id="btnProcesandoExcel" class="btn btn-success" type="button" style="display:none;" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="sr-only"> Descargando...</span>
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="container" id="modalForm"></div>
+
+
+        <div ui-i18n="es">
+            <div id="i18nGrid" ui-grid="gridOptions"
+                 ui-grid-resize-columns
+                 ui-grid-pagination
+                 ui-grid-cellnav
+                 ui-grid-selection
+                 class="grid">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section scripts{
+
+    <script src="~/Scripts/Functions/GridRepCapacidadEconomicaHistorica.js"></script>
+
+}
+

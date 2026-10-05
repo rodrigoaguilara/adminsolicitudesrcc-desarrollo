@@ -1,0 +1,225 @@
+﻿
+@{
+    ViewBag.Title = "Inscribir Proveedores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>INSCRIPCIÓN DE PROVEEDORES NUEVOS</h2>
+
+@Html.AntiForgeryToken()
+
+
+
+
+
+
+@*<h5> Datos Vigentes </h5>*@
+
+
+<div class="card">
+    <div class="card-header text-white bg-dark  ">
+        Buscar Proveedor
+    </div>
+    <div class="card-body">
+        <div class="row mb-2">
+            @*<div class="col-md-1">RUT</div>*@
+            <div class="col-md-2">
+                <input type="text" id="txtBuscarRutProveedor" class="form-control" value="" maxlength="20" placeholder="Ingrese RUT, ej: 12345678-9" />
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="btnBuscarProveedor" class="btn btn-success">Buscar</button>
+                <button id="btnProcesandoBuscarProveedor" class="btn btn-success" type="button" style="display:none;" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="sr-only"> Buscando...</span>
+                </button>
+            </div>
+            <div class="col-md-8">
+                <label id="lblRazonSocialProveedor" class="form-control"></label>
+                <input type="hidden" id="hiddenRutInscribirProveedor" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card" id="cardDatosRegistroMOP">
+    <div class="card-header text-white bg-dark">
+        Datos en el Registro MOP
+    </div>
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table id="tablaFichaDeEstadoRegistropMOP" class="table table-bordered table-hover table-striped">
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card" id="cardDatosInscripcionRegistroMOP">
+    <div class="card-header text-white bg-dark">
+        Inscripción de Proveedor
+    </div>
+    <div class="card-body">
+
+
+        <div class="row mb-2">
+            @*PRIMERA MITAD DE TABLA*@
+            <div class="col-md-4">
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        Tipo de Registro
+                    </div>
+                    <div class="col-md-8">
+                        @Html.DropDownList("cmbTipoRegistro", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+                        <input type="hidden" id="hiddenCodTipoRegistro" value="" />
+                    </div>
+
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        Fecha Inscripción
+                    </div>
+                    <div class="col-md-8">
+                        <input type="date" id="txtEditarFechaInscripcion" class="form-control" />
+                    </div>
+
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        Mes de renovación
+                    </div>
+                    <div class="col-md-8">
+                        @*@Html.DropDownList("cmbEditarMesRenovacion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                @class = "form-select",
+                                @required = true
+                        })*@
+                        <input type="text" id="txtFechaRenovacion" class="form-control" readonly="readonly" placeholder="Mes y año de renovación" />
+
+                    </div>
+
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        Estado
+                    </div>
+                    <div class="col-md-8">
+                        @Html.DropDownList("cmbEditarEstadoProveedor", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                @class = "form-select",
+                                @required = true
+                        })
+                        @*<input type="hidden" id="hiddenAnteriorEstadoProveedor" />
+                            <input type="hidden" id="hiddenNombreAnteriorEstadoProveedor" />*@
+                    </div>
+
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-8">
+                        <input type="hidden" id="hiddenNumSolicitudAsociada" />
+                        @*Solicitud Asociada: N° XXXXXXXXXXX*@
+                        <label id="lblSolicitudAsociada" @*class="form-control"*@></label>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            @*SEGUNDA MITAD DE TABLA*@
+
+            <div class="col-md-8">
+                <div class="row mb-2">
+                    <div class="col-md-5">
+                        <div class="alert alert-info" role="alert">
+                            Al cambiar la fecha, se asignará el mes de renovación según corresponda
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <textarea id="txtMotivoCambioEstadoMOP" rows="4" cols="100" class="form-control" style="resize: none;" placeholder="Debe ingresar un motivo" maxlength="1000"></textarea>
+                    </div>
+
+
+                </div>
+
+
+
+            </div>
+        </div>
+
+
+        <hr />
+
+        <div id="divAdjuntarDocumentoResolucion">
+            <div class="alert alert-info" role="alert">
+                Para dejar Vigente un Proveedor, debe buscar la solicitud que origina este cambio,
+                la cual debe tener una resolución válida y positiva para ese tipo de registro
+            </div>
+
+
+            <div class="row mb-2">
+                <div class="col-md-3">
+                    Asociar Documento Resolución
+                </div>
+                <div class="col-md-5">
+                    @*<input type="number" id="txtBuscarSolicitudConResolucion" class="form-control" placeholder="N° Solicitud a buscar" min="0" maxlength="20" />*@
+                    @Html.DropDownList("cmbBuscarSolicitudConResolucion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Primero debe seleccionar un Tipo de Registro...)", new
+                        {
+                            @class = "form-select"
+                        })
+                </div>
+                @*<div class="col-md-1">
+                    <button type="button" id="btnBuscarDocumentoResolucion" class="btn btn-primary">Buscar</button>
+                </div>*@
+                <input type="hidden" id="hiddenNumeroSolicitudAsociada" />
+                <input type="hidden" id="hiddenNombreDocResolucionAsociado" />
+
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-7">
+                    <label id="lblNombreDocumentoResolucion" class="form-control"></label>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="row mb-2">
+            <div class="col-md-12">
+
+                <p align="center">
+                    <button type="button" id="btnGuardarEstadoMOP" class="btn btn-success">Inscribir</button>
+                    <button id="btnProcesandoGuardarEstadoMOP" class="btn btn-success" type="button" style="display:none;" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="sr-only"> Guardando...</span>
+                    </button>
+                    @*<button type="button" id="btnCancelarModificacionEstadoMOP" class="btn btn-primary">Cancelar</button>*@
+                </p>
+
+
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+
+@section scripts{
+
+
+    <script src="~/Scripts/Functions/InscribirProveedoresJS.js"></script>
+
+}
+
+

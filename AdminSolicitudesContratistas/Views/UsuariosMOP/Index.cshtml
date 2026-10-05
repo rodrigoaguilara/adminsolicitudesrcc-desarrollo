@@ -1,0 +1,285 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+
+<h2>Administración de Usuarios</h2>
+
+<style>
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .grid {
+        width: 100%;
+        height: 80vh; /* La tabla ocupará el 80% de la altura de la ventana */
+    }
+
+
+</style>
+
+
+<div class="row mb-2">
+    <div class="col-md-6">
+        <input type="button" id="btnNuevoUsuario" value="Agregar Nuevo Usuario" class="btn btn-primary" />
+    </div>
+</div>
+
+
+
+<div ng-app="gridUsuariosMOP">
+    <div ng-controller="MainCtrlUsuariosMOP as $ctrl">
+        <button type="button" ng-click="$ctrl.ActualizarUsuarios()" id="btnActualizarUsuarios" value="" class="btn btn-primary" style="visibility:hidden"></button>
+
+      
+
+
+
+
+        <div ui-i18n="es">
+            <div id="i18nGrid" ui-grid="gridOptions"
+                 ui-grid-resize-columns
+                 ui-grid-pagination
+                 @*ui-grid-edit*@
+                 ui-grid-cellnav
+                 ui-grid-selection
+                 @*ui-grid-exporter*@
+                 class="grid">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+<div id="modalUsuarioMOP" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" width="100%" tabindex="-1" role="dialog" aria-hidden="true">
+   <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><label id="lblTitle"></label></h2>
+                <button type="button" id="btnCerrarModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                @*<div class="row mb-2">
+                        <div class="row-md-10">
+
+                        </div>
+                        <div class="row-md-10">
+                            <button type="button" id="btnCerrarModal" class="btn btn-primary btn-sg">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    </div>*@
+
+
+
+            </div>
+            <div class="modal-body">
+
+                <div class="card">
+                    <!--<div class="card-header">-->
+                    @*<h5 id="lblTitle"></h5>*@
+
+
+
+                    @*CARD PRINCIPAL PARA EL MODAL*@
+                    <!--</div>-->
+                    <div class="card-body">
+
+                        @*<input type="hidden" id="hiddenIdSolicitud" />*@
+
+                        <div class="row mb-2">
+                            <div class="col-md-6"> <strong id="lblIdSolPadre"></strong> </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                @*<div id="alertInformacion" class="alert alert-warning" role="alert">
+                                        <label id="lblInformacion"></label>
+                                    </div>*@
+                            </div>
+                        </div>
+
+                        @*DATOS PROVEEDOR*@
+                        <div id="divDatosUsuario">
+
+                            <div id="divBuscarUsuarioMOP">
+                                <div class="row mb-2">
+                                    <div class="col-md-2">
+                                        Buscar por Funcionario
+                                    </div>
+                                    <div class="col-md-8">
+                                        @*<input type="number" id="txtRunUsuarioBuscar" class="form-control" min="0" maxlength="15" placeholder="Sólo Números - Sin dígito verificador"  oncontextmenu="return false;"/>*@
+                                        <input type="text" id="txtUsernameFuncionarioADBuscar" class="form-control" maxlength="50" placeholder="Ingrese la cuenta del funcionario en Active Directory" />
+
+                                        <input type="hidden" id="hiddenRunFuncionarioBuscar" />
+                                        <input type="hidden" id="hiddenUsernameFuncionarioAD" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="button" id="btnBuscarFuncionarioMOP" class="btn btn-primary" value="Buscar" />
+                                        <button id="btnProcesandoBuscarFuncionarioMOP" class="btn btn-primary" type="button" style="display:none;" disabled>
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            <span class="sr-only"> Buscando...</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-2">
+                                    Nombre
+                                </div>
+                                <div class="col-md-4">
+                                    @*<label id="lblNombreUsuario" class="form-control"></label>*@
+                                    <input type="text" id="txtNombreUsuario" class="form-control" value="" disabled />
+                                </div>
+                                <div class="col-md-2">
+                                    Cuenta de usuario
+                                </div>
+                                <div class="col-md-4">
+                                    @*<label id="lblUsernameAD" class="form-control"></label>*@
+                                    <input type="text" id="txtUsernameAD" class="form-control" value="" disabled />
+                                </div>
+
+
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-2">
+                                    e-mail
+                                </div>
+                                <div class="col-md-10">
+                                    @*<label id="lblEmailUsuario" class="form-control"></label>*@
+                                    <input type="text" id="txtEmailUsuario" class="form-control" value="" disabled />
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                        @*DATOS PERFIL*@
+
+                        <div id="divDatosPerfil">
+                            <div class="row mb-2">
+                                <div class="col-md-2">
+                                    Perfil
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("cmbPerfilUsuario", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                    {
+                                        @class = "form-select",
+                                        @required = true
+                                    })
+
+                                </div>
+
+                                <div class="col-md-2">
+                                    Tipos de Solicitud
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("cmbTipoSolicitud", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                    {
+                                        @class = "form-select",
+                                        @required = true
+                                    })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-2">
+                                    Tipos de Registro
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("cmbTipoRegistro", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                    {
+                                        @class = "form-select",
+                                        @required = true
+                                    })
+                                </div>
+
+                                <div class="col-md-2">
+                                    Regiones
+                                </div>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("cmbRegion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                    {
+                                        @class = "form-select",
+                                        @required = true
+                                    })
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-2">
+                                Usuario Vigente
+                            </div>
+                            <div class="col-md-2">
+                                <select id="cmbUsuariovigente" name="cmbUsuariovigente" class="form-select">
+                                    <option value="S" selected>Sí</option>
+                                    <option value="N">No</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+
+                                <p align="center">
+                                    <button type="button" id="btnGuardarUsuarioMOP" class="btn btn-success">Guardar Cambios de Usuario</button>
+                                    <button id="btnProcesandoGuardarUsuarioMOP" class="btn btn-success" type="button" style="display:none;" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span class="sr-only"> Buscando...</span>
+                                    </button>
+                                    @*<button type="button" id="btnCancelarModificacionEstadoMOP" class="btn btn-primary">Cancelar</button>*@
+                                </p>
+
+
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>@*END MAIN CARD*@
+
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+@section scripts{
+
+    <script src="~/Scripts/Functions/UsuariosJS.js"></script>
+
+
+    <script src="~/Scripts/Functions/GridUsuariosMOP.js"></script>
+
+}
+
+
+
+

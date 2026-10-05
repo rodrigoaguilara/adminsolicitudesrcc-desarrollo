@@ -1,0 +1,894 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>BÚSQUEDA DE PROVEEDORES</h2>
+
+
+@Html.AntiForgeryToken()
+
+
+<style>
+    .gridFiltro {
+        width: 100%;
+        height: 100px;
+    }
+
+    .grid {
+        width: 100%;
+        height: 800px;
+    }
+
+    .numericCell {
+        text-align: right;
+    }
+
+    .modal-lg {
+        max-width: 100%;
+        max-height: 90%;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+<div ng-app="app">
+    <div ng-controller="MainCtrl as $ctrl">
+
+        @*FILTROS*@
+        <div class="card ">
+            <div class="card-header text-white bg-dark  ">
+                Filtros
+            </div>
+            <div class="card-body">
+
+
+                <div class="row mb-2">
+                    <div class="col-md-2">RUT Proveedor</div>
+                    <div class="col-md-10">
+                        <input type="text" id="txtBuscarRutProveedor" class="form-control" value="" maxlength="20" placeholder="Con guión, sin puntos y con DV, ej: 12345678-9" />
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-2">Razón Social</div>
+                    <div class="col-md-10">
+                        <input type="text" id="txtBuscarRazonSocial" class="form-control" value="" maxlength="200" />
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="row mb-2">
+                    <div class="col-md-2">Estado Proveedor</div>
+                    <div class="col-md-10">
+                        @Html.DropDownList("cmbBuscarEstadoProveedor", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+
+
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-2">Tipo de Registro</div>
+                    <div class="col-md-10">
+                        @Html.DropDownList("cmbBuscarTipoRegistro", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-2">Región</div>
+                    <div class="col-md-10">
+                        @Html.DropDownList("cmbBuscarRegion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+                    </div>
+                </div>
+
+
+
+
+
+
+
+                <center>
+                    <p align="center">
+                        <table>
+                            <tr>
+
+
+                                <td align="left">
+
+                                    <button type="button" ng-click="$ctrl.BuscarProveedores()" id="btnBuscarProveedores" value="BUSCAR" class="btn btn-primary">BUSCAR</button>
+                                    <button id="procesandoBuscarProveedores" class="btn btn-primary" type="button" style="display:none;" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span class="sr-only"> BUSCANDO...</span>
+                                    </button>
+                                </td>
+                                <td align="right"><input type="button" id="btnLimpiarFiltros" value="LIMPIAR FILTROS" class="btn btn-primary" /></td>
+
+                            </tr>
+                        </table>
+
+                    </p>
+                </center>
+            </div>
+        </div>
+
+        <br />
+
+
+
+        <div class="alert alert-warning" role="alert" id="alertMensajes">
+            <label id="lblMensajeTablaProveedores"></label>
+
+        </div>
+
+
+
+
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <button type="button" id="btnDownloadExcelProv" class="btn btn-success" ng-click="$ctrl.DownloadExcel()" title="DESCARGAR EN EXCEL">
+                    Exportar a Excel
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+                <div class="container" id="modalForm"></div>
+            </div>
+        </div>
+
+
+        @*TABLA PROVEEDORES*@
+        <div ui-i18n="es">
+            <div id="i18nGrid" ui-grid="gridOptions"
+                 ui-grid-resize-columns
+                 ui-grid-pagination
+                 ui-grid-cellnav
+                 ui-grid-selection
+                 ui-grid-exporter
+                 class="grid">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div id="modalProveedor" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" width="100%" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><label id="lblTitle"></label></h2>
+                <button type="button" id="btnCerrarModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+            <div class="modal-body">
+
+                <div id="loadingSpinnerProveedor" class="text-center p-5">
+                    <h3>Cargando...</h3>
+                    <div class="spinner-border text-primary mt-3" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div id="contenidoProveedor" style="display: none;">
+
+                    <div class="card">
+                        <div class="card-header">
+
+                        </div>
+                        <div class="card-body">
+
+
+                            @*DETALLE*@
+
+                            <div id="divDatosProveedor">
+                                <div class="row mb-2">
+                                    <div class="col-md-1">
+                                        Razón Social:
+                                    </div>
+                                    <div class="col-md-11">
+                                        <label id="lblRazonSocialProveedor" class="form-control"></label>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-1">
+                                        RUT:
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label id="lblRutProveedor" class="form-control"></label>
+                                    </div>
+                                    <div class="col-md-1">
+                                        Tipo Registro:
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label id="lblTipoRegistroProveedor" class="form-control"></label>
+                                        <input type="hidden" id="hiddenCodTipoRegistro" value="" />
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        Estado:
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label id="lblEstadoVigenciaProveedor" class="form-control"></label>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-md-1">
+                                        e-mail:
+                                    </div>
+                                    <div class="col-md-11">
+                                        <label id="lblEmailProveedor" class="form-control"></label>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                            @*DEFINICIÓN DE TABS*@
+
+                            <ul class="nav nav-tabs" id="tabProveedor" role="tablist">
+                                <li class="nav-item" role="presentation" id="tabRazonSocial">
+                                    @*<a class="nav-link active" aria-current="page" href="#">Cambio de Razón Social</a>*@
+                                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#panelRazonSocial" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">
+                                        Cambio de Razón Social
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    @*<a class="nav-link" href="#">Estado MOP</a>*@
+                                    <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#panelEstadoMOP" type="button" role="tab" aria-controls="home-tab-pane">
+                                        Estado MOP
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation" id="tabCapacidadEconomica">
+                                    @*<a class="nav-link" href="#">Capacidad Económica</a>*@
+                                    <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#panelCapacidadEconomica" type="button" role="tab" aria-controls="home-tab-pane">
+                                        Capacidad Económica
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    @*<a class="nav-link" href="#">Especialidades y Categorías</a>*@
+                                    <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#panelEspecialidades" type="button" role="tab" aria-controls="home-tab-pane">
+                                        Especialidades y Categorías
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    @*<a class="nav-link" href="#">Documentos Privados</a>*@
+                                    <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#panelDocumentosDelProveedor" type="button" role="tab" aria-controls="home-tab-pane">
+                                        Documentos del Proveedor
+                                    </button>
+                                </li>
+
+                            </ul>
+
+
+                            @*CONTENIDO DE TABS*@
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="tab-content" id="tabProveedoresContent">
+
+                                        @*PANEL RAZON SOCIAL*@
+                                        <div class="tab-pane fade show active" id="panelRazonSocial" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+                                            <br />
+                                            <div class="container">
+                                                <div class="row mb-2">
+                                                    <div class="col-md-2">
+                                                        Razón Social
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <input type="text" id="txtEditarRazonSocial" class="form-control" />
+                                                        <input type="hidden" id="hiddenRazonSocial" />
+                                                    </div>
+
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-2">
+                                                        Nombre de fantasía
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <input type="text" id="txtEditarNombreFantasia" class="form-control" />
+                                                        <input type="hidden" id="hiddenNombreFantasia" />
+                                                    </div>
+
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-12">
+
+                                                        <p align="center">
+                                                            <button type="button" id="btnGuardarRazonSocial" class="btn btn-success">Guardar Razón Social</button>
+                                                            <button id="btnProcesandoGuardarRazonSocial" class="btn btn-success" type="button" style="display:none;" disabled>
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                <span class="sr-only"> Guardando...</span>
+                                                            </button>
+                                                        </p>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <hr />
+
+
+                                            <div id="cardHistorialRazonSocial">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-arrows-expand"></i>
+                                                        <button class="btn btn-link" id="btnVerHistorialRazonSocial" type="button">
+                                                            Historial de Cambios de Razón Social
+                                                        </button>
+                                                    </div>
+                                                    <div class="collapse" id="collapseHistorialRazonSocial">
+                                                        <div class="card-body">
+                                                            <div class="alert alert-info" role="alert" id="alertInfoHistorialRazonSocial">
+                                                                <label id="lblInfoHistorialRazonSocial"></label>
+                                                            </div>
+                                                            <div class="table-responsive">
+                                                                <table id="tablaHistorialRazonSocial" class="table table-bordered table-hover table-striped">
+                                                                </table>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+                                        </div>
+
+                                        @*PANEL ESTADO MOP*@
+
+
+                                        <div class="tab-pane fade" id="panelEstadoMOP" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                                            <div class="container">
+                                                <h5> Datos Vigentes </h5>
+
+                                                <div class="row mb-2">
+                                                    @*PRIMERA MITAD DE TABLA*@
+                                                    <div class="col-md-7">
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-4">
+                                                                Fecha Inscripción
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <input type="date" id="txtEditarFechaInscripcion" class="form-control" @*disabled*@ />
+                                                            </div>
+                                                            @*<div class="col-md-2">
+                                                    Al cambiar la fecha y presionar afuera del mismo control, se ajustará el Mes de renovación según corresponda
+                                                </div>*@
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-4">
+                                                                Mes de renovación
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                @*@Html.DropDownList("cmbEditarMesRenovacion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                                {
+                                                                        @class = "form-select",
+                                                                        @required = true
+                                                                })*@
+                                                                <input type="text" id="txtFechaRenovacion" class="form-control" readonly="readonly" placeholder="Mes y año de renovación" />
+
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-4">
+                                                                Estado
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                @Html.DropDownList("cmbEditarEstadoProveedor", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                                {
+                                                                        @class = "form-select",
+                                                                        @required = true
+                                                                })
+                                                                <input type="hidden" id="hiddenAnteriorEstadoProveedor" />
+                                                                <input type="hidden" id="hiddenNombreAnteriorEstadoProveedor" />
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <button type="button" id="btnRenovarProveedorVigente" class="btn btn-primary">RENOVAR</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-5">
+                                                                <input type="hidden" id="hiddenNumSolicitudAsociada" />
+                                                                @*Solicitud Asociada: N° XXXXXXXXXXX*@
+                                                                <label id="lblSolicitudAsociada" @*class="form-control"*@></label>
+                                                            </div>
+                                                        </div>
+
+
+
+                                                    </div>
+
+                                                    @*SEGUNDA MITAD DE TABLA*@
+                                                    <div class="col-md-5">
+                                                        <textarea id="txtMotivoCambioEstadoMOP" rows="4" cols="100" class="form-control" style="resize: none;" placeholder="Debe ingresar un motivo de cambio" maxlength="1000"></textarea>
+                                                    </div>
+                                                </div>
+
+
+                                                <hr />
+
+                                                <div id="divAdjuntarDocumentoResolucion">
+                                                    <div class="alert alert-info" role="alert">                                                        
+                                                        Para renovar o reactivar la vigencia de un Proveedor, debe buscar la solicitud que origina este cambio,
+                                                        la cual debe tener una resolución válida y positiva
+                                                    </div>
+
+
+                                                    <div class="row mb-2">
+                                                        <div class="col-md-3">
+                                                            Buscar Solicitudes Aceptadas
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            @*<input type="number" id="txtBuscarSolicitudConResolucion" class="form-control" placeholder="N° Solicitud a buscar" min="0" maxlength="20" />*@
+                                                            @Html.DropDownList("cmbBuscarSolicitudConResolucion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                                {
+                                                                    @class = "form-select"
+                                                                })
+                                                        </div>
+                                                        @*<div class="col-md-1">
+                                                            <button type="button" id="btnBuscarDocumentoResolucion" class="btn btn-primary">Buscar</button>
+                                                        </div>*@
+                                                        <input type="hidden" id="hiddenNumeroSolicitudAsociada" />
+                                                        <input type="hidden" id="hiddenNombreDocResolucionAsociado" />
+
+                                                    </div>
+
+                                                    <div id="divInfoDocumentoResolucion">
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-12">
+                                                                Información de la resolución
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-12">
+                                                                <label id="lblNombreDocumentoResolucion" class="form-control"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+
+
+                                                </div>
+
+
+
+
+
+                                                <div class="row mb-2">
+                                                    <div class="col-md-12">
+
+                                                        <p align="center">
+                                                            <button type="button" id="btnGuardarEstadoMOP" class="btn btn-success">Guardar Estado MOP</button>
+                                                            <button id="btnProcesandoGuardarEstadoMOP" class="btn btn-success" type="button" style="display:none;" disabled>
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                <span class="sr-only"> Guardando...</span>
+                                                            </button>
+                                                            @*<button type="button" id="btnCancelarModificacionEstadoMOP" class="btn btn-primary">Cancelar</button>*@
+                                                        </p>
+
+
+                                                    </div>
+                                                </div>
+
+
+                                                <div id="cardHistorialEstadoMOP">
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <i class="bi bi-arrows-expand"></i>
+                                                            <button class="btn btn-link" id="btnVerHistorialEstadoMOP" type="button">
+                                                                @*<h5 id="titleDocumentosAdjuntos"></h5>*@
+                                                                Historial de Estado MOP
+                                                            </button>
+                                                        </div>
+                                                        <div class="collapse" id="collapseHistorialEstadoMOP">
+                                                            <div class="card-body">
+                                                                <div class="alert alert-info" role="alert" id="alertInfoHistorialEstadoMOP">
+                                                                    <label id="lblInfoHistorialEstadoMOP"></label>
+                                                                </div>
+                                                                <div class="table-responsive">
+                                                                    <table id="tablaHistorialEstadoMOP" class="table table-bordered table-hover table-striped">
+                                                                    </table>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+
+
+                                            </div>
+
+
+
+
+                                        </div>
+
+                                        @*PANEL CAPACIDAD ECONÓMICA*@
+                                        <div class="tab-pane fade" id="panelCapacidadEconomica" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                                            <div class="container">
+                                                <h5> Datos Vigentes </h5>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-3">
+                                                        Capacidad económica (UTM)
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <input type="number" id="txtEditarCapacidadEconomica" class="form-control" min="0" oncontextmenu="return false;" />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        Fecha estado financiero
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <input type="date" id="txtEditarFechaEstadoFinanciero" class="form-control" />
+                                                    </div>
+                                                </div>
+                                                <div class="alert alert-info" role="alert" id="divSinDatosCapacidadEconomica">
+                                                    Sin datos registrados para este proveedor
+                                                </div>
+
+                                                <br />
+
+                                                <div class="row mb-2">
+                                                    <div class="col-md-12">
+
+                                                        <p align="center">
+                                                            <button type="button" id="btnGuardarCapacidadEconomica" class="btn btn-success">Guardar Capacidad Económica</button>
+                                                            <button id="btnProcesandoGuardarCapacidadEconomica" class="btn btn-success" type="button" style="display:none;" disabled>
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                <span class="sr-only"> Guardando...</span>
+                                                            </button>
+                                                        </p>
+
+
+                                                    </div>
+                                                </div>
+
+
+                                                <hr />
+
+                                                <div id="cardHistorialCapEconomica">
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <i class="bi bi-arrows-expand"></i>
+                                                            <button class="btn btn-link" id="btnVerHistorialCapEconomica" type="button">
+                                                                Historial de cambios
+                                                            </button>
+                                                        </div>
+                                                        <div class="collapse" id="collapseHistorialCapEconomica">
+                                                            <div class="card-body">
+                                                                <div class="alert alert-info" role="alert" id="alertInfoHistorialCapEconomica">
+                                                                    <label id="lblInfoHistorialCapEconomica"></label>
+                                                                </div>
+                                                                <div class="table-responsive">
+                                                                    <table id="tablaHistorialCapacidadEconomica" class="table table-bordered table-hover table-striped">
+                                                                    </table>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+
+                                                <br />
+
+
+                                            </div>
+
+
+
+
+
+
+                                        </div>
+
+
+                                        @*PANEL ESPECIALIDADES Y CATEGORÍAS*@
+                                        <div class="tab-pane fade" id="panelEspecialidades" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+
+
+
+
+
+                                            <div id="cardListadoEspecialidadesYCategorias">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-arrows-expand"></i>
+                                                        <button class="btn btn-link" id="btnVerListadoEspecialidadesYCategorias" type="button">
+                                                            Listado de Especialidades y sus Categorías
+                                                        </button>
+                                                    </div>
+                                                    <div class="collapse" id="collapseListadoEspecialidadesYCategorias">
+                                                        <div class="alert alert-info" role="alert">
+                                                            <label id="lblMensajeEspecialidadesYCategorias"></label>
+
+                                                        </div>
+
+                                                        @*<table class="table table-bordered table-hover table-striped">
+                                                <tbody id="tablaEspecialidadesYCategorias">
+                                                </tbody>
+                                            </table>*@
+
+
+                                                        <div id="especialidadesCategoriasContainer"></div>
+
+
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div id="cardHistorialEspecialidadesYCategorias">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-arrows-expand"></i>
+                                                        <button class="btn btn-link" id="btnVerHistorialEspecialidadesYCategorias" type="button">
+                                                            Historial de Especialidades y Categorías
+                                                        </button>
+                                                    </div>
+                                                    <div class="collapse" id="collapseHistorialEspecialidadesYCategorias">
+                                                        <div class="alert alert-info" role="alert" id="alertInfoHistorialEspecialidadesYCategorias">
+                                                            <label id="lblInfoHistorialEspecialidadesYCategorias"></label>
+                                                        </div>
+                                                        <table id="tablaHistorialEspecialidadesYCategorias" class="table table-bordered table-hover table-striped">
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+                                        </div>
+
+
+
+
+                                        @* PANEL DOCUMENTOS DEL PROVEEDOR *@
+                                        <div class="tab-pane fade" id="panelDocumentosDelProveedor" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+
+
+                                            @*SUBIR DOCUMENTOS*@
+                                            <div id="cardSubirDocumentosProveedor">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-arrows-expand"></i>
+                                                        <button class="btn btn-link" id="btnVerSubirDocumentosProveedor" type="button">
+                                                            Subir Documentos
+                                                        </button>
+                                                    </div>
+                                                    <div class="collapse" id="collapseSubirDocumentosProveedor">
+
+
+                                                        @*<div id="divPartialViewSubirDocumentos">
+                                                @Html.Action("MsgSubirDocumentos", "MsgSubirDocumentos")
+                                            </div>*@
+
+
+
+                                                        @using (Html.BeginForm("SubirArchivoProveedor", "Proveedores", FormMethod.Post, new { id = "formArchivoProveedor", enctype = "multipart/form-data" }))
+                                                        {
+                                                            <div class="container">
+                                                                <br />
+                                                                <div class="alert alert-warning" role="alert" id="alertMsgSubirDocumentosProveedor">
+                                                                    <label id="lblMsgSubirDocumentosProveedor"></label>
+                                                                </div>
+
+                                                                <input type="hidden" id="hiddenRutProveedorSubirDoc" name="hiddenRutProveedorSubirDoc" />
+
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-3">
+                                                                        Documento a adjuntar
+                                                                    </div>
+                                                                    <div class="col-md-9">
+                                                                        <input type="file" id="fileSubirDocumentoProveedor" name="fileSubirDocumentoProveedor" accept=".pdf" class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-3">
+                                                                        Descripción
+                                                                    </div>
+                                                                    <div class="col-md-9">
+                                                                        <input type="text" id="txtDescripcionSubirDocumentoProveedor" name="txtDescripcionSubirDocumentoProveedor" class="form-control" maxlength="200" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-3">
+                                                                        Área
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <select id="cmbAreaSubirDocumentoProveedor" name="cmbAreaSubirDocumentoProveedor" class="form-select">
+                                                                            <option value="0" selected>(Seleccionar...)</option>
+                                                                            <option value="C">Contable</option>
+                                                                            <option value="L">Legal</option>
+                                                                            <option value="T">Técnica</option>
+                                                                        </select>
+
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        Tipo Documento
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        @Html.DropDownList("cmbTipoDocSubirDocumentoProveedor", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                                        {
+                                                                            @class = "form-select"
+                                                                        })
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-3">
+                                                                        Año
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <input type="number" id="txtAñoDocSubirDocumentoProveedor" name="txtAñoDocSubirDocumentoProveedor" class="form-control" min="2000" onkeydown="return false" oncontextmenu="return false;" />
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        Visible al Proveedor
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        @*<div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"  id="chkVisibleAlProveedorSubirDocumento" name="chkVisibleAlProveedorSubirDocumento">
+                                                                <label class="form-check-label" for="chkVisibleAlProveedorSubirDocumento">
+                                                                    Visible al Proveedor
+                                                                </label>
+                                                            </div>*@
+                                                                        <select id="cmbVisibleAlProveedorSubirDocProv" name="cmbVisibleAlProveedorSubirDocProv" class="form-select">
+                                                                            <option value="N" selected>No</option>
+                                                                            <option value="S">Sí</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-3">
+                                                                        Palabras Clave
+                                                                    </div>
+                                                                    <div class="col-md-9">
+                                                                        <input type="text" id="txtPalabrasClaveDocumentoProveedor" name="txtPalabrasClaveDocumentoProveedor" placeholder="Introduzca palabras clave para una mejor búsqueda posterior" class="form-control" maxlength="200" />
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-12">
+
+                                                                        <p align="center">
+                                                                            <button type="button" id="btnSubirDocumentoProveedor" class="btn btn-success">Subir Documento</button>
+                                                                            <button id="btnProcesandoSubirDocumentoProveedor" class="btn btn-success" type="button" style="display:none;" disabled>
+                                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                                <span class="sr-only"> Guardando...</span>
+                                                                            </button>
+                                                                        </p>
+
+
+                                                                    </div>
+                                                                </div>
+
+
+
+
+                                                            </div>
+                                                        }
+
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            @*LISTADO DE DOCUMENTOS*@
+                                            <div id="cardListadoDocumentosProveedor">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-arrows-expand"></i>
+                                                        <button class="btn btn-link" id="btnVerListadoDocumentosProveedor" type="button">
+                                                            Listado de Documentos del Proveedor
+                                                        </button>
+                                                    </div>
+                                                    <div class="collapse" id="collapseListadoDocumentosProveedor">
+                                                        @*<div class="alert alert-info" role="alert" id="alertInfoListadoDocumentosProveedor">
+                                                <label id="lblInfoListadoDocumentosProveedor"></label>
+                                            </div>*@
+                                                        <div class="table-responsive">
+                                                            <table id="tablaDocumentosDelProveedor" class="table table-bordered table-hover table-striped">
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+
+
+
+
+
+
+                        </div>
+                    </div>
+    
+                    @*END MAIN CARD*@
+
+
+
+
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+@section scripts{
+
+    <script src="~/Scripts/Functions/ProveedoresJS.js"></script>
+    <script src="~/Scripts/Functions/GridProveedores.js"></script>
+
+}
+
+
+

@@ -1,0 +1,151 @@
+﻿body {
+    font-family: gobCL;
+}
+
+
+tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, .075);
+}
+
+
+
+#backgroundHeader {
+    /*background-color: #fcfcfc;*/
+    background-color: #212529; 
+}
+
+#franjaGob {
+    height: 14px;
+    width: 200px;
+    margin-top: -10px;
+}
+
+
+#headerTextStyles {
+    font-weight: bold;
+    font-size: 18px;
+    font-family: gobCL;
+    color: white;
+}
+
+
+#rowPadding {
+    padding: 8px;
+}
+
+#modalStyle {
+    max-width: 480px;
+}
+
+#iconosModalOcultos {
+    display: none;
+}
+
+
+/*#redLabelAlerts {
+    color: red;
+}*/
+
+#lblValidacionTipoRegistro {
+    color: red;
+}
+
+#lblValidacionTipoSolicitud {
+    color: red;
+}
+
+#lblValidacionComentarios {
+    color: red;
+}
+
+
+#txtComentarios {
+    resize: none;
+}
+
+#modalSolicitud {
+    display: none;
+}
+
+
+
+
+
+/*CLASES PARA OCULTAR Y MOSTRAR BOTONES*/
+
+.showElement {
+    display: block;
+}
+
+.hideElement {
+    display: none;
+}
+
+
+
+
+
+/*PAGINACIÓN*/
+
+.regularFont {
+    font-weight:normal;
+}
+
+.boldFont {
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+/* ESTILOS PARA LEYENDA SITIO DE DESARROLLO */
+
+
+.leyenda-ambiente {
+    background-color: #dc3545; /* Un color rojo de advertencia */
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 2px 0;
+    font-size: 14px;
+    letter-spacing: 2px;
+    /* Esto es lo que reemplaza el espacio rojo que marcaste en la imagen */
+}
+
+
+
+
+/*CUSTOM FOOTER*/
+
+.custom-footer {
+    background-color: #333333; /* Dark background color similar to the image */
+    color: white;
+    padding: 15px 0;
+    font-size: 14px;
+}
+
+    .custom-footer .footer-bar {
+        display: flex;
+        height: 5px;
+    }
+
+    .custom-footer .footer-red {
+        background-color: #C0392B; /* Red color */
+        width: 50%;
+    }
+
+    .custom-footer .footer-blue {
+        background-color: #2980B9; /* Blue color */
+        width: 50%;
+    }
+
+    .custom-footer p {
+        margin: 0;
+    }

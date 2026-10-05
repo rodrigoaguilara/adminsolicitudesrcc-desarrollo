@@ -1,0 +1,52 @@
+﻿
+@{
+    ViewBag.Title = "Mantenedor de Perfiles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@Html.AntiForgeryToken()
+
+<h2>Administración de Perfiles</h2>
+
+<div ng-app="gridPerfiles" ng-controller="MainCtrlPerfiles as $ctrl">
+    <div ui-grid="gridOptions" class="grid"></div>
+</div>
+
+<!-- Modal para Permisos -->
+<div class="modal fade" id="modalPermisos" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPermisosLabel">Permisos para el Perfil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="hiddenCodPerfil" />
+                <table class="table table-hover" id="tablaPermisos">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Asignado</th>
+                            <th style="width: 30%;">Menú</th>
+                            <th>Opción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarPermisos">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/Functions/GridPerfiles.js"></script>
+    <script src="~/Scripts/Functions/PerfilesJS.js"></script>
+}

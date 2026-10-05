@@ -1,0 +1,662 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>BÚSQUEDA DE SOLICITUDES</h2>
+
+@Html.AntiForgeryToken()
+
+
+<style>
+    .gridFiltro {
+        width: 100%;
+        height: 100px;
+    }
+
+    .grid {
+        width: 100%;
+        height: 80vh; /* La tabla ocupará el 80% de la altura de la ventana */
+    }
+
+    .numericCell {
+        text-align: right;
+    }
+
+
+
+    textarea {
+        /*border: 1px solid #999999;*/
+        width: 100%;
+        /*margin: 5px 0;*/
+        /*padding: 3px;*/
+    }
+</style>
+
+
+
+
+
+<div class="alert alert-warning" role="alert">
+    <h5>Importante</h5>
+    Para buscar solicitudes, filtre primero el Estado, Tipo de Registro, Tipo de Solicitud, o los datos del Proveedor y luego presione en <b>buscar</b>
+</div>
+
+<div ng-app="gridSolicitudes">
+    <div ng-controller="MainCtrlSolicitudes as $ctrl">
+
+        @*FILTROS*@
+        <div class="card ">
+            <div class="card-header text-white bg-dark  ">
+                Filtros
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-2">ESTADO</div>
+                    <div class="col-md-10">
+                        @Html.DropDownList("cmbBuscarEstadoMOP", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">TIPO DE REGISTRO</div>
+                    <div class="col-md-10">
+                        @Html.DropDownList("cmbBuscarTipoRegistro", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">TIPO DE SOLICITUD</div>
+                    <div class="col-md-10">
+                        @Html.DropDownList("cmbBuscarTipoSolicitud", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+                    </div>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col-md-2">RUT PROVEEDOR</div>
+                    <div class="col-md-10">
+                        <input type="text" id="txtBuscarRutProveedor" class="form-control" value="" maxlength="20" placeholder="Con guión, sin puntos y con DV, ej: 12345678-9" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">RAZÓN SOCIAL</div>
+                    <div class="col-md-10">
+                        <input type="text" id="txtBuscarRazonSocial" class="form-control" value="" maxlength="200" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">NUMERO SOLICITUD</div>
+                    <div class="col-md-10">
+                        <input type="number" id="txtBuscarNumeroSolicitud" class="form-control" value="" maxlength="10" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">REGIONES QUE PUEDE VER</div>
+                    <div class="col-md-10">
+                        <label id="lblUserRegion" class="form-control"></label>
+                    </div>
+                </div>
+
+                @*<center>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button class="btn btn-primary" id="btnBuscarProveedores" type="button">
+                                    BUSCAR
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-primary" id="btnLimpiarFiltros" type="button">
+                                    LIMPIAR FILTROS
+                                </button>
+                            </div>
+                        </div>
+                    </center>*@
+
+
+                <center>
+                    <p align="center">
+                        <table>
+                            <tr>
+                                @*<td align="right"><input type="button" id="btnGuardar" value="Guardar" class="btn btn-primary" /></td>
+                                    <td align="center"><input type="button" id="btnEnviar" value="Enviar" class="btn btn-primary" /></td>
+                                    <td align="center"><input type="button" id="btnEliminar" value="Eliminar Solicitud" confirm="¿Está seguro que desea eliminar la solicitud?" class="btn btn-primary" /></td>
+                                    <td align="left"><input type="button" id="btnResponder" value="Responder" class="btn btn-primary" /></td>*@
+
+                                <td align="left">
+                                    @*<input type="button" id="btnBuscarProveedores" value="BUSCAR" class="btn btn-primary" />*@
+                                    <button type="button" ng-click="$ctrl.BuscarSolicitudes()" id="btnBuscarSolicitudes" value="BUSCAR" class="btn btn-primary">BUSCAR</button>
+                                    <button id="procesando" class="btn btn-primary" type="button" style="display:none;" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span class="sr-only"> BUSCANDO...</span>
+                                    </button>
+                                </td>
+                                <td align="right"><input type="button" id="btnLimpiarFiltros" value="LIMPIAR FILTROS" class="btn btn-primary" /></td>
+
+                            </tr>
+                        </table>
+
+                    </p>
+                </center>
+            </div>
+        </div>
+
+
+        <div class="alert alert-warning" role="alert" id="alertMensajes">
+            <label id="lblMensajeTablaSolicitudes"></label>
+
+        </div>
+
+        <br />
+
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <button type="button" id="btnDownloadExcel" class="btn btn-success" ng-click="$ctrl.DownloadExcel()" title="DESCARGAR EN EXCEL">
+                    @*<span class=""></span>*@
+                    Exportar a Excel
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+                <button id="btnProcesandoExcel" class="btn btn-success" type="button" style="display:none;" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="sr-only"> Descargando...</span>
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="container" id="modalForm"></div>
+
+
+        <div ui-i18n="es">
+            <div id="i18nGrid" ui-grid="gridOptions"
+                 ui-grid-resize-columns
+                 ui-grid-pagination
+                 @*ui-grid-edit*@
+                 ui-grid-cellnav
+                 ui-grid-selection
+                 @*ui-grid-exporter*@
+                 class="grid">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+@*<div id="modalSolicitud" class="modal" width="100%" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">*@
+
+<div id="modalSolicitud" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" width="100%" tabindex="-1" role="dialog" aria-hidden="true">
+    @*<div class="modal-dialog modal-lg" role="document">*@
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><label id="lblTitle"></label></h2>
+                <button type="button" id="btnCerrarModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                @*<div class="row mb-2">
+                        <div class="row-md-10">
+
+                        </div>
+                        <div class="row-md-10">
+                            <button type="button" id="btnCerrarModal" class="btn btn-primary btn-sg">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    </div>*@
+
+
+
+            </div>
+            <div class="modal-body">
+
+                <!-- ===== NUEVO INDICADOR DE CARGA ===== -->
+                <div id="loadingSpinnerSolicitud" class="text-center p-5">
+                    <h3>Cargando...</h3>
+                    <div class="spinner-border text-primary mt-3" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div id="contenidoSolicitud" style="display: none;">
+
+                    <div class="card">
+                        <!--<div class="card-header">-->
+                        @*<h5 id="lblTitle"></h5>*@
+
+
+
+                        @*CARD PRINCIPAL PARA EL MODAL*@
+                        <!--</div>-->
+                        <div class="card-body">
+
+
+
+                            @using (@Html.BeginForm("GuardarSolicitud", "Solicitudes", FormMethod.Post, new { id = "formGuardarSolicitud", enctype = "multipart/form-data" }))
+                            {
+
+                                <input type="hidden" id="hiddenIdSolicitud" name="hiddenIdSolicitud" />
+                                <input type="hidden" id="hiddenIdSolPadre" name="hiddenIdSolPadre" />
+                                <input type="hidden" id="hiddenCodPerfilSolicitud" name="hiddenCodPerfilSolicitud" />
+                                <input type="hidden" id="hiddenCodEstadoSolicitud" name="hiddenCodEstadoSolicitud" />
+                                <input type="hidden" id="hiddenCodTipoSolicitud" name="hiddenCodTipoSolicitud" />
+                                <input type="hidden" id="hiddenCodTipoRegistro" name="hiddenCodTipoRegistro" />
+                                <input type="hidden" id="hiddenRutProveedor" name="hiddenRutProveedor" />
+                                <input type="hidden" id="hiddenListDocs" name="hiddenListDocs" value="" />
+                                <input type="hidden" id="hiddenCantLegalPerfil" name="hiddenCantLegalPerfil" value="" />
+                                <input type="hidden" id="hiddenCantTecnicaPerfil" name="hiddenCantTecnicaPerfil" value="" />
+                                <input type="hidden" id="hiddenCantContablePerfil" name="hiddenCantContablePerfil" value="" />
+                                <input type="hidden" id="hiddenEmailProveedor" name="hiddenEmailProveedor" value="" />
+                                <input type="hidden" id="hiddenFechaRecepcion" name="hiddenFechaRecepcion" value="" />
+                                <input type="hidden" id="hiddenCodRegion" name="hiddenCodRegion" value="" />
+
+
+
+                                <div class="row mb-2">
+                                    <div class="col-md-6"> <strong id="lblIdSolPadre"></strong> </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <div id="alertInformacion" class="alert alert-warning" role="alert">
+                                            <label id="lblInformacion"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                @*DATOS PROVEEDOR*@
+                                <div id="divDatosProveedor">
+                                    <!-- Fila 1: Razón Social (Ancho completo) -->
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <strong>Razón Social</strong>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <label id="lblRazonSocialProveedor" class="form-control bg-light"></label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fila 2: RUT y Estado del Proveedor -->
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <strong>RUT</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label id="lblRutProveedor" name="lblRutProveedor" class="form-control bg-light"></label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <strong>Estado Prov.</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label id="lblEstadoProveedor" class="form-control bg-light"></label>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                                <div id="divDatosSolicitud">
+
+                                    <!-- Fila 3: Tipo de Registro y Tipo de Solicitud -->
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <strong>Tipo Registro</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label id="lblTipoRegistroSolicitud" class="form-control bg-light"></label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <strong>Tipo Solicitud</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label id="lblTipoSolicitud" class="form-control bg-light"></label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fila 4: Estado de la Solicitud y Espacio libre (o puedes mover otro campo aquí) -->
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <strong>Estado Solicitud</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label id="lblEstadoSolicitud" class="form-control bg-light"></label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            @* Espacio libre para balancear o para futuras notas breves *@
+                                        </div>
+                                    </div>
+
+                                    <!-- Fila 5: Fechas (Agrupadas para mejor lectura temporal) -->
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <strong>Fecha Creación</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" id="txtFechaRecepcion" class="form-control" disabled />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <strong>Envío Análisis</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" id="txtFechaIngreso" class="form-control" disabled />
+                                        </div>
+
+                                    </div>
+
+
+                                    <div id="cardComentarios">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <i class="bi bi-arrows-expand"></i>
+                                                <button class="btn btn-link" id="btnVerComentarios" type="button">
+                                                    @*<h5 id="titleDocumentosAdjuntos"></h5>*@
+                                                    Comentarios
+                                                </button>
+                                            </div>
+                                            <div class="collapse" id="collapseComentarios">
+                                                <div class="card-body">
+
+                                                    @*<div class="row mb-2">
+                                                            <div class="col-md-3">
+                                                                COMENTARIOS
+                                                            </div>
+                                                        </div>*@
+                                                    <div class="row mb-2">
+                                                        <div class="col-md-12">
+                                                            <textarea id="txtComentarios" rows="6" class="form-control" maxlength="1000" disabled></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card" id="cardSolicitudesRelacionadas">
+                                        <div class="card-header">
+                                            <i class="bi bi-arrows-expand"></i>
+                                            <button class="btn btn-link" id="btnVerSolicitudesRelacionadas" type="button">
+                                                @*<h5 id="titleObservacionesSolicitud"></h5>*@
+                                                Solicitudes Relacionadas
+                                            </button>
+                                        </div>
+                                        <div class="collapse" id="collapseSolicitudesRelacionadas">
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-hover table-striped">
+                                                        <tbody id="tablaSolicitudesRelacionadas">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div id="cardDocumentosAdjuntos">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <i class="bi bi-arrows-expand"></i>
+                                                <button class="btn btn-link" id="btnVerDocumentosAdjuntos" type="button">
+                                                    @*<h5 id="titleDocumentosAdjuntos"></h5>*@
+                                                    Documentos Adjuntos
+                                                </button>
+                                            </div>
+                                            <div class="collapse" id="collapseDocumentosAdjuntos">
+                                                <div class="card-body">
+
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered table-hover table-striped" id="htmlTableDocAdj" name="htmlTableDocAdj">
+                                                            <tbody id="tablaDocumentosAdjuntos">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <div id="divDescargaMasivaDocumentos">
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-2">
+                                                                Descargar documentos por Área de Análisis
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <input type="hidden" id="hiddenListDocsDescargaMasiva" name="hiddenListDocsDescargaMasiva" value="" />
+                                                                @Html.DropDownList("cmbDescargaMasivaDocumentos", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                                {
+                                                                    @class = "form-select"
+                                                                })
+
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <button type="button" id="btnDescargaMasivaDocumentos" class="btn btn-success">Descargar </button>
+                                                                <button id="btnProcesandoDescargaMasivaDocs" class="btn btn-success" type="button" style="display:none;" disabled>
+                                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                    <span class="sr-only"> Descargando...</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @*<br />*@
+
+
+                                    <div class="card" id="cardLogSolicitud">
+                                        <div class="card-header">
+                                            <i class="bi bi-arrows-expand"></i>
+                                            <button class="btn btn-link" id="btnVerLogSolicitud" type="button">
+                                                @*<h5 id="titleObservacionesSolicitud"></h5>*@
+                                                Log Solicitud
+                                            </button>
+                                        </div>
+                                        <div class="collapse" id="collapseLog">
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-hover table-striped">
+                                                        <tbody id="tablaLogSolicitud">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @*<br />*@
+
+                                    <div class="card" id="cardObservacionesSolicitud">
+                                        <div class="card-header">
+                                            <i class="bi bi-arrows-expand"></i>
+                                            <button class="btn btn-link" id="btnVerObservacionesSolicitud" type="button">
+                                                @*<h5 id="titleResolucionSolicitud"></h5>*@
+                                                Observaciones del área de Análisis
+                                            </button>
+                                        </div>
+                                        <div class="collapse" id="collapseObservacionesSolicitud">
+                                            <div class="card-body">
+                                                <div>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered table-hover table-striped">
+                                                            <tbody id="tablaObservacionesSolicitud">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @*<br />*@
+
+                                    <div class="card" id="cardResolucionSolicitud">
+                                        <div class="card-header">
+                                            <i class="bi bi-arrows-expand"></i>
+                                            <button class="btn btn-link" id="btnVerDocumentoResolucion" type="button">
+                                                @*<h5 id="titleResolucionSolicitud"></h5>*@
+                                                Documentos de Resolución
+                                            </button>
+                                        </div>
+                                        <div class="collapse" id="collapseDocumentoResolucion">
+                                            <div class="card-body">
+                                                <div>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered table-hover table-striped">
+                                                            <tbody id="tablaDocumentoResolucion">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                                <hr />
+
+
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning" role="alert" id="alertInformacionAcciones" style="display:none;">
+                                            <label id="lblInformacionAcciones"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div id="divAccionesSolicitud">
+
+                                    <div style="visibility:hidden">
+                                        Eliminar Documentos de Área de Análisis
+                                        <p align="center">
+                                            @Html.DropDownList("cmbEliminarDocumentosResolucion", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                                {
+                                                                    @class = "form-select"
+                                                                })
+                                        </p>
+
+
+
+                                    </div>
+
+
+
+                                    <hr />
+
+
+                                    Acciones sobre la Solicitud
+                                    <p align="center">
+                                        @Html.DropDownList("cmbAccionesSolicitud", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                                                            {
+                                                                @class = "form-select",
+                                                                @title = "Acción"
+                                                            })
+                                    </p>
+
+                                    <div class="row mb-2">
+                                        <div class="col-md-12">
+                                            <textarea id="txtComentariosAceptarSolicitud" name="txtComentariosAceptarSolicitud" placeholder="Máximo 1000 caracteres" rows="6" class="form-control" maxlength="1000" style="display:none;"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-md-6">
+                                            <input type="file" id="fileSubirDocResolucion" name="fileSubirDocResolucion" accept=".pdf" class="form-control" style="display:none;" />
+                                        </div>
+                                    </div>
+
+
+                                    <div class="alert alert-warning" role="alert" id="alertMsgGuardarSolicitud" style="display:none;">
+                                        <label id="lblMsgGuardarSolicitud"></label>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-md-12">
+                                            <p align="center">
+                                                <button type="button" id="btnGuardarSolicitud" class="btn btn-success">Guardar </button>
+                                                <button id="btnProcesandoGuardarSolicitud" class="btn btn-success" type="button" style="display:none;" disabled>
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span class="sr-only"> Cargando...</span>
+                                                </button>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            }
+
+
+
+
+                        </div>
+                    </div>
+                    @*END MAIN CARD*@
+
+
+
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+@section scripts{
+
+    <script src="~/Scripts/Functions/GridSolicitudes.js"></script>
+    <script src="~/Scripts/Functions/SolicitudesJS.js"></script>
+
+}
+
+
+

@@ -1,0 +1,84 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="SHORTCUT ICON" href="/Content/IMG/favicon.ico" />
+    @*<title>@ViewBag.Title - Portal MOP</title>*@
+    <title>@ViewBag.Title - Administración de Solicitudes Registro Contratista MOP</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="/Content/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/Content/CSS/CustomCSSMOP.css" rel="stylesheet" />
+    <!-- Puedes añadir un CSS específico para el login si lo necesitas -->
+</head>
+<!-- Estas clases son clave para el footer fijo -->
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+    <header id="header">
+
+        <div class="wrap">
+            <div class="row" id="backgroundHeader">
+
+
+                <div class="col-sm-8">
+                    <div class="row" id="rowPadding">
+                        <div>
+                            <div class="t1" id="headerTextStyles">
+                                @System.Configuration.ConfigurationManager.AppSettings["pageTitle"]
+                            </div>
+                            <div class="t5" id="franjaGob"><img src="/Content/IMG/franja.svg"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                @*<div class="col-sm-4">
+                    <div class="row" id="rowPadding">
+                        <div>
+                            <div>
+                                <div class="d-flex flex-row-reverse bd-highlight">
+                                    <div>
+                                        <div class="row mb-2">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+
+
+    </header>
+
+    <!-- La clase 'flex-grow-1' hace que esta sección ocupe todo el espacio disponible -->
+    <main class="container-fluid flex-grow-1">
+        @RenderBody()
+    </main>
+
+    <footer class="custom-footer">
+        @* <div class="container text-center"> *@
+        <div class="container ">
+            <p class="mb-1">Ministerio de Obras Públicas | Gobierno de Chile</p>
+            <p>Subdivisión de Tecnologías de la Información y Telecomunicaciones</p>
+            <p>Subsecretaría de Obras Públicas</p>
+            <p>@DateTime.Now.Year</p>
+            <br />
+            <div class="t5" style="height: 14px;width:200px; margin-top:-10px; margin-bottom:10px; "><img src="/Content/IMG/franja.svg"></div>
+        </div>
+
+    </footer>
+
+    <!-- Scripts al final para mejor rendimiento -->
+    <script src="~/Scripts/jquery-3.7.0.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.js"></script>
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

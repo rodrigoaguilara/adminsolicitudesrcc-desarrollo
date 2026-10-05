@@ -1,0 +1,69 @@
+﻿@Html.AntiForgeryToken()
+
+<div class="container-fluid p-0">
+    <div class="row">
+        <!-- BLOQUE IZQUIERDO (col-md-8): Los 3 gráficos estadísticos -->
+        <div class="col-md-9">
+
+            <!-- Fila superior del bloque izquierdo (Pie y Barras de Estado) -->
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Proveedores vigentes por Tipo</h6>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 300px;">
+                                <canvas id="chartProveedoresTipo"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-success">Estados de Solicitud Pendientes</h6>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div style="height: 300px;">
+                                <canvas id="chartSolicitudesEstado"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila inferior del bloque izquierdo (Detalle por Región) -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-warning">Detalle de Solicitudes pendientes por Región</h6>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 650px; width: 100%;">
+                                <canvas id="chartSolicitudesRegion"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOQUE DERECHO (col-md-4): El mapa a pantalla completa vertical -->
+        <div class="col-md-3">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Distribución Geográfica de Proveedores Vigentes</h6>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Ajustamos la altura para que coincida con la suma de los de la izquierda (~880px) -->
+                    <div style="height: 890px; width: 100%; position: relative;">
+                        <canvas id="chartMapaChile"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

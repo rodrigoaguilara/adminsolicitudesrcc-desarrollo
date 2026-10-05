@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AdminSolicitudesContratistas.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AdminSolicitudesContratistas_WS_AD_AccesoActiveDirectory" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://wscorporativo.mop.gob.cl/Funcionarios/ActiveDirectory/AccesoActiveDirectory.asmx</Value>
+    </Setting>
+    <Setting Name="AdminSolicitudesContratistas_WS_EnvioCorreoMOP_EnvioCorreos" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://wscorporativo.mop.gob.cl/Comunes/EnvioMail/EnvioCorreos.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

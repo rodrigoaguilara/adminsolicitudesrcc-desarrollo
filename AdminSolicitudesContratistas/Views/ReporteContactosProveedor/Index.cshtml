@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Reporte de Contactos de Proveedores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@* Título principal de la página *@
+<h2>REPORTE DE CONTACTOS DE PROVEEDORES</h2>
+
+@* Incluimos el token anti-falsificación para que nuestro JavaScript pueda usarlo. *@
+@Html.AntiForgeryToken()
+
+@* Estilos CSS específicos para esta página *@
+<style>
+    .grid {
+        width: 100%;
+        height: 800px; /* Ajusta la altura de la tabla según necesites */
+    }
+</style>
+
+@* Mensaje que se muestra mientras se cargan los datos. *@
+<div id="divCargando" class="alert alert-info" role="alert">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Espere mientras se cargan los registros...
+</div>
+
+@* Contenedor principal de la aplicación Angular. *@
+<div ng-app="gridReporteContactos" ng-controller="MainCtrlReporteContactos as $ctrl">
+
+    @* Fila con el botón para exportar a Excel. *@
+    <div class="row mb-3 mt-3">
+        <div class="col-md-4">
+            <button type="button" class="btn btn-success" ng-click="$ctrl.DownloadExcel()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Exportar a Excel
+            </button>
+        </div>
+    </div>
+
+    @* Contenedor para la tabla ui-grid. ui-i18n="es" es para la internacionalización. *@
+    <div ui-i18n="es">
+        <div id="gridReporte"
+             ui-grid="gridOptions"
+             ui-grid-resize-columns
+             ui-grid-selection
+             class="grid">
+        </div>
+    </div>
+
+</div>
+
+@* Sección para cargar los scripts específicos de esta vista. *@
+@section scripts {
+    <script src="~/Scripts/Functions/GridReporteContactos.js"></script>
+}

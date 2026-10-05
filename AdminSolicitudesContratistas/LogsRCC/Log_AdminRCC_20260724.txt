@@ -1,0 +1,51 @@
+﻿[09:27:31] [TRACE] Iniciando carga Solicitud 65143
+[09:27:31] [TRACE] 1. Consultando SP_MOP_TRAER_SOLICITUD_POR_ID
+[09:27:35] [TRACE] 2. Datos principales mapeados OK
+[09:27:36] [TRACE] 3. Procesando 2 resoluciones. Llamando a Gesintel Token.
+[09:27:37] [TRACE] 4. Validando archivo ID: 2686090
+[09:27:37] [TRACE] 4. Validando archivo ID: 2686094
+[09:27:38] [TRACE] 5. Todo el proceso terminó con éxito.
+[10:18:13] [TRACE] [Cristóbal González] Iniciando carga Solicitud 65143
+[10:18:13] [TRACE] [Cristóbal González] 1. Consultando SP_MOP_TRAER_SOLICITUD_POR_ID
+[10:18:16] [TRACE] [Cristóbal González] 2. Datos principales mapeados OK
+[10:18:16] [TRACE] [Cristóbal González] 3. Procesando 2 resoluciones. Llamando a Gesintel Token.
+[10:18:16] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Iniciando llamado POST a Gesintel
+[10:18:17] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Respuesta recibida. Status: OK
+[10:18:17] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Deserializando respuesta OK
+[10:18:17] [TRACE] [Cristóbal González] 4. Validando archivo ID: 2686090
+[10:18:18] [TRACE] [Cristóbal González] 4. Validando archivo ID: 2686094
+[10:18:18] [TRACE] [Cristóbal González] 5. Todo el proceso terminó con éxito.
+[10:19:24] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - ---INICIO DESCARGA DE ARCHIVOS---
+[10:19:24] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Solicitando Token Gesintel
+[10:19:24] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Iniciando llamado POST a Gesintel
+[10:19:24] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Respuesta recibida. Status: OK
+[10:19:24] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Deserializando respuesta OK
+[10:19:24] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Buscando nuevo folio (MOP/HIST)
+[10:19:28] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - No hallado en MOP, buscando en HIST
+[10:19:32] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - No hallado en HIST, usando ID original
+[10:19:32] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Folio final a descargar: 2686090
+[10:19:32] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Llamando a GetFileDocument
+[10:19:33] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Archivo descargado OK. Tamaño: 468172 bytes
+[10:19:33] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Solicitando metadatos (BajarInfoArchivoAdjunto)
+[10:19:33] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Iniciando llamado POST a Gesintel
+[10:19:33] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Respuesta recibida. Status: OK
+[10:19:33] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Deserializando respuesta OK
+[10:19:34] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Validando RUT. Esperado: 192296633, Recibido: 192296633
+[10:19:34] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Preparando descarga de: Expediente_Nro_8952548_Archivo_2456.pdf
+[10:19:34] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - ---INICIO DESCARGA DE ARCHIVOS---
+[10:19:34] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Solicitando Token Gesintel
+[10:19:34] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Iniciando llamado POST a Gesintel
+[10:19:34] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Respuesta recibida. Status: OK
+[10:19:34] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Deserializando respuesta OK
+[10:19:34] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Buscando nuevo folio (MOP/HIST)
+[10:19:39] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - No hallado en MOP, buscando en HIST
+[10:19:39] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - No hallado en HIST, usando ID original
+[10:19:39] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Folio final a descargar: 2686090
+[10:19:39] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Llamando a GetFileDocument
+[10:19:40] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Archivo descargado OK. Tamaño: 468172 bytes
+[10:19:40] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Solicitando metadatos (BajarInfoArchivoAdjunto)
+[10:19:40] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Iniciando llamado POST a Gesintel
+[10:19:40] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Respuesta recibida. Status: OK
+[10:19:40] [TRACE] [Cristóbal González] API_Auth(User:servicio-api@mop) - Deserializando respuesta OK
+[10:19:40] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Validando RUT. Esperado: 192296633, Recibido: 192296633
+[10:19:40] [TRACE] [Cristóbal González] BajarArchivoGesintel(ID: 2686090, RUT: 19229663-3) - Preparando descarga de: Expediente_Nro_8952548_Archivo_2456.pdf

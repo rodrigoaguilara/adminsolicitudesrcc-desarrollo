@@ -1,0 +1,45 @@
+﻿@model IEnumerable<AdminSolicitudesContratistas.Models.ViewModels.EspecialidadCompletaViewModel>
+
+<div class="table-responsive">
+    <table id="tablaEspecialidadesYCategorias" class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Tipo Especialidad</th>
+                <th>Tipo Categoría</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (esp, i) in Model.Select((value, index) => (value, index)))
+            {
+                <tr>
+                    <td>@esp.TipoEspecialidad</td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Selección de categoría">
+
+                            <input type="radio" class="btn-check permiso-categoria-check"
+                                   name="btnradio_@(i)" id="rbCat_@(i)_sin" autocomplete="off"
+                                   data-id-registro="@esp.Id"
+                                   data-cod-especialidad="@esp.CodTipoEspecialidad"
+                                   data-cod-categoria="-1"
+                                   data-nombre-especialidad="@esp.TipoEspecialidad"
+                                   @(string.IsNullOrEmpty(esp.CodTipoCategoriaSeleccionada) ? "checked" : "") />
+                            <label class="btn btn-outline-primary" for="rbCat_@(i)_sin">Sin Categoría</label>
+
+                            @foreach (var (cat, j) in esp.CategoriasDisponibles.Select((value, index) => (value, index)))
+                            {
+                                <input type="radio" class="btn-check permiso-categoria-check"
+                                       name="btnradio_@(i)" id="rbCat_@(i)_@(j)" autocomplete="off"
+                                       data-id-registro="@esp.Id"
+                                       data-cod-especialidad="@esp.CodTipoEspecialidad"
+                                       data-cod-categoria="@cat.CodTipoCategoria"
+                                       data-nombre-especialidad="@esp.TipoEspecialidad"
+                                       @(esp.CodTipoCategoriaSeleccionada == cat.CodTipoCategoria ? "checked" : "") />
+                                <label class="btn btn-outline-primary" for="rbCat_@(i)_@(j)">@cat.TipoCategoria</label>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

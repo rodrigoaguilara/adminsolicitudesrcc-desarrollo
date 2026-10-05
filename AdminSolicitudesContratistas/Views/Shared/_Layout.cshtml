@@ -1,0 +1,416 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="SHORTCUT ICON" href="/Content/IMG/favicon.ico" />
+    <title>@ViewBag.Title - Administración de Solicitudes Registro Contratista MOP</title>
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+
+
+
+    @*ESTILOS*@
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/font/bootstrap-icons.css" rel="stylesheet" />
+
+    @*CUSTOM CSS MOP*@
+    <link href="/Content/CSS/CustomCSSMOP.css" rel="stylesheet" />
+
+    @* BOOTSTRAP TABLE CSS *@
+    <link href="~/Content/CSS/bootstrap-table.css" rel="stylesheet" />
+    <link href="~/Content/CSS/bootstrap-table-filter-control.css" rel="stylesheet" />
+
+    @* DATATABLE.NET CSS *@
+    @*<link href="~/Content/CSS/DataTables.css" rel="stylesheet" />*@
+
+
+    @*ANGULAR DATATABLE CSS*@
+    @*<link href="~/Content/data-table.css" rel="stylesheet" />*@
+
+    @*DROPZONE*@
+    <link href="/Scripts/dropzone/basic.css" rel="stylesheet" />
+    <link href="/Scripts/dropzone/dropzone.css" rel="stylesheet" />
+
+
+
+    @* ANGULAR *@
+
+    <link href="/Content/ui-grid.css" rel="stylesheet" />
+    <link href="/Content/ui-grid.css" rel="stylesheet" />
+
+
+
+
+</head>
+<body>
+    <header id="header">
+
+        <div class="wrap">
+            <div class="row" id="backgroundHeader">
+
+                @Html.AntiForgeryToken()
+
+
+
+                <div class="col-sm-8">
+                    <div class="row" id="rowPadding">
+                        <div>
+                            <div class="t1" id="headerTextStyles">
+                                @System.Configuration.ConfigurationManager.AppSettings["pageTitle"]
+                            </div>
+                            <div class="t5" id="franjaGob"><img src="/Content/IMG/franja.svg"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-sm-4">
+                    <div class="row" id="rowPadding2">
+                        <div>
+                            <div>
+                                <div class="">
+                                    <div id="headerTextStyles">
+                                        <div class="row mb-2">
+                                            <div class="col-md-9">
+                                                @*Bienvenido(a) <label id="lblUsername"> @Session["SessionNombreUsuario"] </label>*@
+                                                Bienvenido(a) <label id="lblUsername"> @Session["SessionNombreUsuario"] </label>
+                                                @Html.Hidden("hiddenUsernameAD", @Session["SessionUsernameAD"])
+                                                @Html.Hidden("hiddenUserTipoRegistro", @Session["SessionUserTipoRegistro"])
+                                                @Html.Hidden("hiddenUserTipoSolicitud", @Session["SessionUserTipoSolicitud"])
+                                                @Html.Hidden("hiddenUserRegion", @Session["SessionUserRegion"])
+                                                @Html.Hidden("hiddenMinutosTimeoutms", @Session["SessionMinutosTimeoutms"])
+                                                <br />
+                                                <h6 id="lblMailusuario"> @Session["SessionEmailUsuario"] </h6>
+                                                @*<input type="hidden" id="hiddenUsernameAD" value="@Session["SessionUsernameAD"]" />*@
+                                            </div>
+                                            <div class="col-md-3">
+                                                @*<div class="d-flex flex-row-reverse bd-highlight">*@
+                                                <div class="d-flex bd-highlight">
+                                                    @*@Html.ActionLink("Logout", "../Home/Logout")*@
+                                                    <a href="@Url.Action("Logout", "Home")" class="btn btn-outline-light">
+                                                        Salir
+                                                        @*<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>*@
+                                                        <i class="bi bi-box-arrow-right"></i>
+                                                    </a>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <label id="lblPerfilUsuario"> @Session["SessionPerfilUsuario"] </label>
+                                                @Html.Hidden("hiddenCodPerfil", @Session["SessionCodPerfil"])
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblTiempoSesion"> </label>
+                                                <label id="lblTiempoRestanteSesion"> </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+
+            @{ var entorno = System.Configuration.ConfigurationManager.AppSettings["EntornoAplicacion"]; }
+            @if (!string.IsNullOrEmpty(entorno) && entorno.ToLower() != "produccion")
+            {
+                <div class="row g-0">
+                    <div class="col-12">
+                        <div class="leyenda-ambiente">
+                            AMBIENTE DE @entorno.ToUpper()
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+        </div>
+
+
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+            <div class="container-fluid">
+                @*<a class="navbar-brand" >DGOP</a>*@
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarScroll">
+
+                    <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;" id="listMenu">
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+
+
+
+
+
+    </header>
+
+
+
+    @*<div class="container body-content ">*@
+    <div class="container-fluid body-content ">
+        @RenderBody()
+        <hr />
+        @*<footer>
+                <p>&copy; @DateTime.Now.Year - MOP</p>
+            </footer>*@
+
+
+
+
+        @*ALERT MODAL*@
+
+        <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" @*style="border-radius: 0.5rem !important;"*@>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-2" id="divOK">
+                                <img src="/Content/IMG/Aviso_Bien.png" @*Height="50px" Width="50px"*@ />
+                            </div>
+                            <div class="col-md-2" id="divError">
+                                <img src="/Content/IMG/Aviso_Error.png" @*Height="50px" Width="50px"*@ />
+                            </div>
+                            <div class="col-md-2" id="divWarning">
+                                <img src="/Content/IMG/Aviso_Warning.png" @*Height="50px" Width="50px"*@ />
+                            </div>
+                            <div class="col-md-10">
+                                <h3 id="alertModalMsg"></h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <center><button type="button" id="btnHideAlertModal" class="close" aria-label="Close">OK</button></center>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered width_480" role="document" @*style="max-width:480px;"*@>
+                <div class="modal-content BorderRadius" @*style="border-radius: 0.5rem !important;"*@>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3>Cargando...</h3>
+                            </div>
+                            <div class="col-md-2">
+                                <img src="~/Content/IMG/procesando.gif" Height="50px" Width="50px" />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+    </div>
+
+
+
+
+    <footer class="custom-footer">
+        @* <div class="container text-center"> *@
+        <div class="container ">
+            <p class="mb-1">Ministerio de Obras Públicas | Gobierno de Chile</p>
+            <p>Subdivisión de Tecnologías de la Información y Telecomunicaciones</p>
+            <p>Subsecretaría de Obras Públicas</p>
+            <p>@DateTime.Now.Year</p>
+            <br />
+            <div class="t5" style="height: 14px;width:200px; margin-top:-10px; margin-bottom:10px; "><img src="/Content/IMG/franja.svg"></div>
+        </div>
+
+    </footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @*@Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")*@
+
+    <!-- #region REFERENCIAS JS -->
+    @*JAVASCRIPT*@
+
+    <script type="text/javascript" src="/Scripts/jquery-3.7.0.js"></script>
+    @*<script type="text/javascript" src="/Scripts/bootstrap.js"></script>*@
+    <script type="text/javascript" src="/Scripts/bootstrap.bundle.js"></script>
+    <script type="text/javascript" src="/Scripts/plugins/fullcalendar/moment-with-locales.js"></script>
+
+
+    @*DROPZONE*@
+    <script type="text/javascript" src="/Scripts/dropzone/dropzone.js"></script>
+
+
+    @* BOOTSTRAP TABLE JS *@
+
+    <script type="text/javascript" src="~/Scripts/plugins/bootstrapTable/bootstrap-table.js"></script>
+    <script type="text/javascript" src="~/Scripts/plugins/bootstrapTable/bootstrap-table-filter-control.js"></script>
+
+
+    @* DATATABLE.NET JS *@
+    @*<script type="text/javascript" src="~/Scripts/jquery.dataTables.js"></script>*@
+
+
+
+
+    @* ANGULAR *@
+
+
+
+    <script src="/Scripts/angular.js"></script>
+    <script src="/Scripts/angular-aria.js"></script>
+    <script src="/Scripts/angular-touch.js"></script>
+    <script src="/Scripts/angular-animate.js"></script>
+    <script src="/Scripts/angular-ui/ui-bootstrap.js"></script>
+    <script src="/Scripts/angular-ui/ui-utils.js"></script>
+    <script src="/Scripts/angular-busy.js"></script>
+    <script src="/Scripts/ui-grid.js"></script>
+    <script src="/Scripts/ui-grid.core.js"></script>
+    <script src="/Scripts/ui-grid.base.js"></script>
+    <script src="/Scripts/ui-grid.cellnav.js"></script>
+    <script src="/Scripts/ui-grid.edit.js"></script>
+    <script src="/Scripts/ui-grid.pagination.js"></script>
+    <script src="/Scripts/ui-grid.resize-columns.js"></script>
+    <script src="/Scripts/ui-grid.selection.min.js"></script>
+    <script src="/Scripts/ui-grid.infinite-scroll.min.js"></script>
+    <script src="/Scripts/ui-grid.expandable.min.js"></script>
+    <script src="/Scripts/ui-grid.tree-base.min.js"></script>
+    <script src="/Scripts/ui-grid.tree-view.min.js"></script>
+
+
+    <script src="/Scripts/i18n/angular-locale_es-cl.js"></script>
+
+    @*<script src="/Scripts/angularExcelBuilder.js"></script>*@
+
+
+
+    @*SCRIPTS LAYOUT*@
+    <script src="~/Scripts/Functions/LayoutJS.js"></script>
+
+
+    
+
+    <!-- #endregion -->
+    <!-- #region FUNCIONES CUSTOM JS QUE TIENEN QUE ESTAR ACÁ Y NO EN ARCHIVO -->
+
+
+    <script>
+
+        $(document).ready(function () {
+            // Establece el idioma español para TODAS las operaciones de moment.js
+            // en toda la aplicación.
+            moment.locale('es');
+
+            $('#btnHideAlertModal').on('click', function () {
+                HideAlertModal();
+            });
+
+            function HideAlertModal() {
+                //$('#alertModal').modal('hide');
+                $('#alertModal').toggle();
+            }
+
+            //MANEJO DE SESSION TIME OUT EN JS
+            $(document).ajaxError(function (e, xhr) {
+                if (xhr.status == 401)
+                    window.location = "../Home/Login";
+                else if (xhr.status == 403)
+                    alert("You have not enough permissions to request this resource.");
+            });
+
+            //// Get the session timeout value from the hidden field
+            ////var sessionTimeoutMilliseconds = parseInt(document.getElementById("hiddenMinutosTimeoutms").value);
+            var sessionTimeoutMilliseconds = $("#hiddenMinutosTimeoutms").val();
+
+            // Start the countdown timer
+            var timer = setTimeout(function () {
+                // Redirect to the login page when the session expires
+                window.location.href = '/Home/Login';
+            }, sessionTimeoutMilliseconds);
+
+            //MOSTRAR EL TIEMPO DE SESIÓN RESTANTE
+            // Get the session timeout value from the hidden field
+            var sessionTimeoutSeconds = parseInt($("#hiddenMinutosTimeoutms").val()) / 1000;
+
+            // Function to format seconds into HH:MM:SS format
+            function formatTime(seconds) {
+                var hours = Math.floor(seconds / 3600);
+                var minutes = Math.floor((seconds % 3600) / 60);
+                var remainingSeconds = seconds % 60;
+
+                return ("0" + hours).slice(-2) + ":" + ("0" + minutes).slice(-2) + ":" + ("0" + remainingSeconds).slice(-2);
+            }
+
+            // Update the label with the initial session time
+            $("#lblTiempoSesion").text("Fin de sesión en " + formatTime(sessionTimeoutSeconds));
+
+            // Start the countdown timer
+            var timer = setInterval(function () {
+                // Decrement the remaining session time
+                sessionTimeoutSeconds--;
+
+                // Update the label with the remaining session time
+                $("#lblTiempoSesion").text("Fin de sesión en " + formatTime(sessionTimeoutSeconds));
+
+                // If session timeout reaches 0, clear the timer
+                if (sessionTimeoutSeconds <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000); // Update every second
+
+
+
+
+        });
+
+
+
+
+
+
+
+    </script>
+
+    <!-- #endregion -->
+
+
+
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+

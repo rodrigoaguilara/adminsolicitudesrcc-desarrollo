@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+
+
+
+<div class="container text-center py-5">
+ 
+<h1 class="display-5 text-wrap">
+    Bienvenidos al Sistema de Administración de Solicitudes para el Registro de Contratistas y consultores de la DGOP
+</h1> 
+<div class="mt-4 d-inline-block bg-light p-3 rounded shadow-sm" style="width: 50%; height: 50%;">
+        <img src="~/Content/IMG/hormigon_fondo.png" alt="Mascota MOP" class="img-fluid rounded" />
+    </div>
+
+</div>
+
+@*<div class="container-fluid">
+    <h2>Dashboard de Gestión</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-12">
+             
+            @Html.Partial("_PartialDashboard")
+        </div>
+
+        <div class="col-md-6">
+             
+        </div>
+    </div>
+</div>*@
+
+
+@section scripts {
+    @* 1. Librería Principal *@
+    <script src="~/Scripts/Chart.min.js"></script>
+
+    @* 2. El Plugin (Debe estar DESPUÉS de Chart.min.js) *@
+    <script src="~/Scripts/chartjs-chart-geo.min.js"></script>
+
+    @* 3. Tu lógica de negocio *@
+    <script src="@Url.Content("~/Scripts/Functions/dashboard.js")"></script>
+
+    @* 3. Ejecutar el código *@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Verificamos que el objeto exista antes de llamar a init
+            if (typeof DashboardMOP !== 'undefined') {
+                DashboardMOP.init();
+            } else {
+                console.error("No se pudo cargar DashboardMOP. Revisa la ruta del archivo js.");
+            }
+        });
+    </script>
+}
+

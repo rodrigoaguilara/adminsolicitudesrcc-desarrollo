@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<br />
+
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+
+        
+        
+
+        <!-- Columna Izquierda: Imagen (oculta en móviles) -->
+        <div class="col-md-7 col-lg-6 d-none d-md-flex align-items-center justify-content-center">
+            
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <br />
+                    <h5 class="display-6 fw-bold text-primary mb-4">
+                        Administración de Proveedores del Registro de Contratistas y Consultores
+                    </h5>
+                </div>
+                <div class="col-md-12">
+                    <div class="mt-4 d-inline-block bg-light p-3 rounded shadow-sm" @*style="width: 50%; height: 50%;"*@>
+                        <img src="~/Content/IMG/hormigon_fondo.png" alt="Mascota MOP" class="img-fluid rounded" />
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            @*<h5 class="display-4 fw-bold text-primary mb-4">
+            Administración de Proveedores del Registro de Contratistas y Consultores
+        </h5>
+
+        <div class="mt-4 d-inline-block bg-light p-3 rounded shadow-sm" >
+            <img src="~/Content/IMG/hormigon_fondo.png" alt="Mascota MOP" class="img-fluid rounded" />
+        </div>*@
+        </div>
+
+        <!-- Columna Derecha: Formulario de Login -->
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0" style="width: 400px;">
+                <img class="card-img-top" src="~/Content/IMG/logo_mop.jpg" alt="Logo MOP">
+                <div class="card-body p-4">
+                    <h4 class="card-title text-center mb-4">Ingrese sus credenciales MOP</h4>
+
+                    @using (Html.BeginForm("Login", "Home", FormMethod.Post, new { id = "loginForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        if (TempData["ErrorMSG"] != null)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @TempData["ErrorMSG"]
+                            </div>
+                        }
+
+                        <div class="form-group mb-3">
+                            <label for="txtUser">Nombre Usuario</label>
+                            <input type="text" class="form-control" id="txtUser" name="username" placeholder="Ingrese Nombre de Usuario">
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="txtPassword">Contraseña</label>
+                            <input type="password" class="form-control" id="txtPassword" name="password" placeholder="Ingrese su Clave">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="btnIngresar" class="btn btn-primary" type="submit">
+                                Ingresar
+                            </button>
+                            <button id="btnProcesando" class="btn btn-primary" type="button" style="display:none;" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Ingresando...
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#loginForm').on('submit', function () {
+                var usuario = $('#txtUser').val();
+                var password = $('#txtPassword').val();
+
+                if (!usuario || !password) {
+                    alert('Por favor, ingrese su usuario y contraseña.');
+                    return false;
+                }
+
+                $('#btnIngresar').hide();
+                $('#btnProcesando').show();
+            });
+        });
+    </script>
+}

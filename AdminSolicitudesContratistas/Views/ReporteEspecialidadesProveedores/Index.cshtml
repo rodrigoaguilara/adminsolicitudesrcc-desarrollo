@@ -1,0 +1,135 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>REPORTE ESPECIALIDADES DE PROVEEDORES</h2>
+
+
+@Html.AntiForgeryToken()
+
+
+<style>
+    .gridFiltro {
+        width: 100%;
+        height: 100px;
+    }
+
+    .grid {
+        width: 100%;
+        height: 800px;
+    }
+
+    .numericCell {
+        text-align: right;
+    }
+</style>
+
+
+
+
+@*<div id="divCargando" class="alert alert-warning" role="alert">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span class="sr-only"> Espere mientras se cargan los registros...</span>
+    </div>*@
+
+
+<div ng-app="gridRepEspecialidadesProveedores">
+    <div ng-controller="MainCtrlRepEspecialidadesProveedores as $ctrl">
+
+        @*FILTROS*@
+
+        <div class="card ">
+            <div class="card-header text-white bg-dark  ">
+                Filtros
+            </div>
+            <div class="card-body">
+
+
+                <div class="row mb-2">
+                    <div class="col-md-2">Tipo de Registro</div>
+                    <div class="col-md-4">
+                        @Html.DropDownList("cmbBuscarTipoRegistro", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                        {
+                                                            @class = "form-select",
+                                                            @required = true
+                        })
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" ng-click="$ctrl.BuscarRepEspecialidadesProveedores()" id="btnBuscarRepEspecialidadesProveedores" value="BUSCAR" class="btn btn-primary">BUSCAR</button>
+                        <button id="procesandoBuscarRepEspecialidadesProveedores" class="btn btn-primary" type="button" style="display:none;" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="sr-only"> BUSCANDO...</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!--<center>
+                    <p align="center">
+                        <table>
+                            <tr>
+
+
+                                <td align="left">
+
+                                    <button type="button" ng-click="$ctrl.BuscarRepEspecialidadesProveedores()" id="btnBuscarRepEspecialidadesProveedores" value="BUSCAR" class="btn btn-primary">BUSCAR</button>
+                                    <button id="procesandoBuscarRepEspecialidadesProveedores" class="btn btn-primary" type="button" style="display:none;" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span class="sr-only"> BUSCANDO...</span>
+                                    </button>
+                                </td>-->
+                @*<td align="right"><input type="button" id="btnLimpiarFiltros" value="LIMPIAR FILTROS" class="btn btn-primary" /></td>*@
+
+                <!--</tr>
+                        </table>
+
+                    </p>
+                </center>-->
+            </div>
+        </div>
+
+
+
+
+        <br />
+
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <button type="button" id="btnDownloadExcel" class="btn btn-success" ng-click="$ctrl.DownloadExcel()" title="DESCARGAR EN EXCEL">
+                    @*<span class=""></span>*@
+                    Exportar a Excel
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+                <button id="btnProcesandoExcel" class="btn btn-success" type="button" style="display:none;" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="sr-only"> Descargando...</span>
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="container" id="modalForm"></div>
+
+
+        <div ui-i18n="es">
+            <div id="i18nGrid" ui-grid="gridOptions"
+                 ui-grid-resize-columns
+                 ui-grid-pagination
+                 ui-grid-cellnav
+                 ui-grid-selection
+                 class="grid">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+@section scripts{
+
+
+    <script src="~/Scripts/Functions/GridRepEspecialidadesProveedores.js"></script>
+
+}

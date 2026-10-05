@@ -1,0 +1,222 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Documentos del Proveedor</h2>
+
+
+@Html.AntiForgeryToken()
+
+
+<div class="card">
+    <div class="card-header text-white bg-dark  ">
+        Buscar Proveedor
+    </div>
+    <div class="card-body">
+
+
+
+        <div class="row mb-2">
+            <div class="col-md-1">RUT</div>
+            <div class="col-md-2">
+                <input type="text" id="txtBuscarRutProveedor" class="form-control" value="" maxlength="20" placeholder="Con guión, sin puntos y con DV, ej: 12345678-9" />
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="btnBuscarProveedor" class="btn btn-success">Buscar</button>
+                <button id="btnProcesandoBuscarProveedor" class="btn btn-success" type="button" style="display:none;" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="sr-only"> Buscando...</span>
+                </button>
+            </div>
+            <div class="col-md-7">
+                <label id="lblRazonSocialProveedor" class="form-control"></label>
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+    </div>
+</div>
+
+
+
+
+@*SUBIR DOCUMENTOS*@
+<div id="cardSubirDocumentosProveedor">
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-arrows-expand"></i>
+            <button class="btn btn-link" id="btnVerSubirDocumentosProveedor" type="button">
+                Subir Documentos
+            </button>
+        </div>
+        <div class="collapse" id="collapseSubirDocumentosProveedor">
+
+
+            @*<div id="divPartialViewSubirDocumentos">
+                    @Html.Action("MsgSubirDocumentos", "MsgSubirDocumentos")
+                </div>*@
+
+
+
+
+
+
+            @using (Html.BeginForm("SubirArchivoProveedor", "DocumentosDelProveedor", FormMethod.Post, new { id = "formArchivoProveedor", enctype = "multipart/form-data" }))
+            {
+                <div class="container">
+                    <br />
+                    <div class="alert alert-warning" role="alert" id="alertMsgSubirDocumentosProveedor">
+                        <label id="lblMsgSubirDocumentosProveedor"></label>
+                    </div>
+
+                    <input type="hidden" id="hiddenRutProveedorSubirDoc" name="hiddenRutProveedorSubirDoc" />
+
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            Documento a adjuntar
+                        </div>
+                        <div class="col-md-9">
+                            <input type="file" id="fileSubirDocumentoProveedor" name="fileSubirDocumentoProveedor" accept=".pdf" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            Descripción
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" id="txtDescripcionSubirDocumentoProveedor" name="txtDescripcionSubirDocumentoProveedor" class="form-control" maxlength="200" />
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            Área
+                        </div>
+                        <div class="col-md-3">
+                            <select id="cmbAreaSubirDocumentoProveedor" name="cmbAreaSubirDocumentoProveedor" class="form-select">
+                                <option value="0" selected>(Seleccionar...)</option>
+                                <option value="C">Contable</option>
+                                <option value="L">Legal</option>
+                                <option value="T">Técnica</option>
+                            </select>
+
+                        </div>
+                        <div class="col-md-3">
+                            Tipo Documento
+                        </div>
+                        <div class="col-md-3">
+                            @Html.DropDownList("cmbTipoDocSubirDocumentoProveedor", new SelectList(Enumerable.Empty<SelectListItem>()), "(Seleccionar...)", new
+                            {
+                                @class = "form-select"
+                            })
+                        </div>
+
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            Año
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" id="txtAñoDocSubirDocumentoProveedor" name="txtAñoDocSubirDocumentoProveedor" class="form-control" min="2000" onkeydown="return false" oncontextmenu="return false;" />
+                        </div>
+                        <div class="col-md-3">
+                            Visible al Proveedor
+                        </div>
+                        <div class="col-md-3">
+                            @*<div class="form-check">
+                                    <input class="form-check-input" type="checkbox"  id="chkVisibleAlProveedorSubirDocumento" name="chkVisibleAlProveedorSubirDocumento">
+                                    <label class="form-check-label" for="chkVisibleAlProveedorSubirDocumento">
+                                        Visible al Proveedor
+                                    </label>
+                                </div>*@
+                            <select id="cmbVisibleAlProveedorSubirDocProv" name="cmbVisibleAlProveedorSubirDocProv" class="form-select">
+                                <option value="N" selected>No</option>
+                                <option value="S">Sí</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            Palabras Clave
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" id="txtPalabrasClaveDocumentoProveedor" name="txtPalabrasClaveDocumentoProveedor" placeholder="Introduzca palabras clave para una mejor búsqueda posterior" class="form-control" maxlength="200" />
+                        </div>
+                    </div>
+
+
+                    <div class="row mb-2">
+                        <div class="col-md-12">
+
+                            <p align="center">
+                                <button type="button" id="btnSubirDocumentoProveedor" class="btn btn-success">Subir Documento</button>
+                                <button id="btnProcesandoSubirDocumentoProveedor" class="btn btn-success" type="button" style="display:none;" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="sr-only"> Guardando...</span>
+                                </button>
+                            </p>
+
+
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+            }
+
+
+
+        </div>
+    </div>
+</div>
+
+
+@*LISTADO DE DOCUMENTOS*@
+<div id="cardListadoDocumentosProveedor">
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-arrows-expand"></i>
+            <button class="btn btn-link" id="btnVerListadoDocumentosProveedor" type="button">
+                Listado de Documentos del Proveedor
+            </button>
+        </div>
+        <div class="collapse" id="collapseListadoDocumentosProveedor">
+            @*<div class="alert alert-info" role="alert" id="alertInfoListadoDocumentosProveedor">
+                    <label id="lblInfoListadoDocumentosProveedor"></label>
+                </div>*@
+            @ViewBag.Message
+            <div class="table-responsive">
+                <table id="tablaDocumentosDelProveedor" class="table table-bordered table-hover table-striped">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+
+    <script src="~/Scripts/Functions/DocumentosProveedorJS.js"></script>
+
+
+}
+
+
+
+
+
+
+
