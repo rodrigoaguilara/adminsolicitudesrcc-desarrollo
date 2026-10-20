@@ -378,3 +378,5 @@ secrets.json
 
 # Configuración de entornos de desarrollo (si usan VS Code)
 .vscode/
+/AdminSolicitudesContratistas/Content/TempUploadedFiles/
+/AdminSolicitudesContratistas/LogsRCC/

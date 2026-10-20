@@ -99,7 +99,8 @@ namespace AdminSolicitudesContratistas.Models
             try
             {
                 WS_EnvioMail.EnvioCorreosSoapClient wsMail = new WS_EnvioMail.EnvioCorreosSoapClient();
-                respWS = wsMail.enviarCorreoHTML(staticEmisorMOP, staticReceptorMOPTMP, staticAsunto, staticCuerpo, staticConCopia);
+                //respWS = wsMail.enviarCorreoHTML(staticEmisorMOP, staticReceptorMOPTMP, staticAsunto, staticCuerpo, staticConCopia);
+                respWS = wsMail.enviarCorreoHTML(staticEmisorMOP, "rodrigo.aguilar@mop.gov.cl", staticAsunto, staticCuerpo, "");
             }
             catch (Exception x)
             {
@@ -193,7 +194,8 @@ namespace AdminSolicitudesContratistas.Models
             try
             {
                 WS_EnvioMail.EnvioCorreosSoapClient wsMail = new WS_EnvioMail.EnvioCorreosSoapClient();
-                respWS = wsMail.enviarCorreoHTML(staticEmisorMOP, staticReceptorMOPTMP, staticAsunto, staticCuerpo, staticConCopia);
+                //respWS = wsMail.enviarCorreoHTML(staticEmisorMOP, staticReceptorMOPTMP, staticAsunto, staticCuerpo, staticConCopia);
+                respWS = wsMail.enviarCorreoHTML(staticEmisorMOP, "rodrigo.aguilar@mop.gov.cl", staticAsunto, staticCuerpo, "");
             }
             catch (Exception x)
             {
@@ -283,8 +285,10 @@ namespace AdminSolicitudesContratistas.Models
                 WS_EnvioMail.EnvioCorreosSoapClient wsMail = new WS_EnvioMail.EnvioCorreosSoapClient();
                 if (staticBaseDatos.Equals("DESA")) {
                     emailProveedor = staticReceptorProveedorTMP;
-                }                
-                respWS = wsMail.enviarCorreoHTML(staticEmisorProveedores, emailProveedor, asunto, cuerpo, staticConCopia);
+                }
+
+                //respWS = wsMail.enviarCorreoHTML(staticEmisorProveedores, emailProveedor, asunto, cuerpo, staticConCopia);
+                respWS = wsMail.enviarCorreoHTML(staticEmisorProveedores, "rodrigo.aguilar@mop.gov.cl", asunto, cuerpo, "");
 
                 //log mail
                 //string funcionarioMOP = Session["SessionNombreUsuario"].ToString();                
@@ -384,7 +388,9 @@ namespace AdminSolicitudesContratistas.Models
                 {
                     emailProveedor = staticReceptorProveedorTMP;
                 }                    
-                respWS = wsMail.enviarCorreoHTML(staticEmisorProveedores, emailProveedor, asunto, cuerpo, staticConCopia);
+                //respWS = wsMail.enviarCorreoHTML(staticEmisorProveedores, emailProveedor, asunto, cuerpo, staticConCopia);
+                respWS = wsMail.enviarCorreoHTML(staticEmisorProveedores, "rodrigo.aguilar@mop.gov.cl", asunto, cuerpo, "");
+                
                 int r = GuardarMOPLogEnvioCorreoProveedores(rutProveedor, idSolicitud, asunto, cuerpo, emailProveedor, funcionarioMOP, respWS);
             }
             catch (Exception x)

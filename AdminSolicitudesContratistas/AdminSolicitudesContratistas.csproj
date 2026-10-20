@@ -623,6 +623,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Services\CorreoApiService.cs" />
+    <Compile Include="Services\PlantillaCorreoService.cs" />
     <Compile Include="Web References\WS_AD\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

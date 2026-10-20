@@ -102,6 +102,10 @@
             //console.log('area: ' + area);
             //console.log('tipoDoc: ' + tipoDoc);
             //console.log('año: ' + año);
+            var idDocumento = $("#cmbTipoDocSubirDocumentoProveedor option:selected")
+                .attr("data-id-doc");
+
+            $("#idDoc").val(idDocumento || "");
             var formData = new FormData($("#formArchivoProveedor")[0]);
             $.ajax({
                 url: $("#formArchivoProveedor").attr("action"),
@@ -110,6 +114,7 @@
                 processData: false, // Important: tell jQuery not to process the data
                 contentType: false, // Important: tell jQuery not to set contentType
                 success: function (result) {
+
                     $("#lblMsgSubirDocumentosProveedor").text(result.message);
                     if (result.success) {
                         //TRUE                
@@ -1435,36 +1440,111 @@
 
         }
 
-        function CargarTipoDocSubirDoc() {
-            var areaDocumento = $("#cmbAreaSubirDocumentoProveedor").val();
-            //console.log('areaDocumento ' + areaDocumento);
-            if (areaDocumento != '0') {
-                $.ajax({
-                    type: 'POST',
-                    url: "/Proveedores/JsonTraerTipoDocumento",
-                    dataType: "json",
-                    data: { areaDocumento: areaDocumento, __RequestVerificationToken: $("[name='__RequestVerificationToken']").val() },
-                    success: function (datos) {
-                        if (datos === "EMPTY") {
-                            $('#cmbTipoDocSubirDocumentoProveedor').empty();
-                        } else {
-                            $('#cmbTipoDocSubirDocumentoProveedor').empty();
-                            $("#cmbTipoDocSubirDocumentoProveedor").append($("<option value='' selected > (Seleccionar...) </option>"));
-                            $(datos).each(function () {
-                                $("#cmbTipoDocSubirDocumentoProveedor").append($("<option></option>").val(this.CODIGO_DOC).html(this.NOMBRE_DOC));
-                            });
+        // function CargarTipoDocSubirDoc() {
+        //     var areaDocumento = $("#cmbAreaSubirDocumentoProveedor").val();
+        //     //console.log('areaDocumento ' + areaDocumento);
+        //     if (areaDocumento != '0') {
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: "/Proveedores/JsonTraerTipoDocumento",
+        //             dataType: "json",
+        //             data: { areaDocumento: areaDocumento, __RequestVerificationToken: $("[name='__RequestVerificationToken']").val() },
+        //             success: function (datos) {
+        //                 if (datos === "EMPTY") {
+        //                     $('#cmbTipoDocSubirDocumentoProveedor').empty();
+        //                 } else {
+        //                     $('#cmbTipoDocSubirDocumentoProveedor').empty();
+        //                     $("#cmbTipoDocSubirDocumentoProveedor").append($("<option value='' selected > (Seleccionar...) </option>"));
+        //                     $(datos).each(function () {
+        //                         $("#cmbTipoDocSubirDocumentoProveedor").append($("<option></option>").val(this.CODIGO_DOC).attr("data-id-doc",this.ID_DOC).html(this.NOMBRE_DOC));
+        //                     });
 
-                        }
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) { }
-                });
-            } else {
-                $('#cmbTipoDocSubirDocumentoProveedor').empty();
-                $("#cmbTipoDocSubirDocumentoProveedor").append($("<option value='' selected > (Seleccionar...) </option>"));
-            }
+        //                 }
+        //             },
+        //             error: function (jqXHR, textStatus, errorThrown) { }
+        //         });
+        //     } else {
+        //         $('#cmbTipoDocSubirDocumentoProveedor').empty();
+        //         $("#cmbTipoDocSubirDocumentoProveedor").append($("<option value='' selected > (Seleccionar...) </option>"));
+        //     }
+
+        //     // Recuperar el ID al seleccionar un documento
+        //     $(document).on("change", "#cmbTipoDocSubirDocumentoProveedor", function() {
+
+        //         var idDocumento = $(this)
+        //             .find("option:selected")
+        //             .attr("data-id-doc");
+
+        //         $("#idDoc").val(idDocumento || "");
+
+        //     });
+
+    // }
 
 
+    function CargarTipoDocSubirDoc() {
+
+        var areaDocumento = $("#cmbAreaSubirDocumentoProveedor").val();
+
+        // Limpiar el ID anterior
+        $("#idDoc").val("");
+
+        if (areaDocumento != '0') {
+            $.ajax({
+                type: 'POST',
+                url: "/Proveedores/JsonTraerTipoDocumento",
+                dataType: "json",
+                data: {
+                    areaDocumento: areaDocumento,
+                    __RequestVerificationToken:
+                        $("[name='__RequestVerificationToken']").val()
+                },
+                success: function (datos) {
+
+                    console.log("DOCUMENTOS RECIBIDOS:", datos);
+                    console.log("PRIMER DOCUMENTO:", datos !== "EMPTY" ? datos[0] : datos);
+
+                    $('#cmbTipoDocSubirDocumentoProveedor').empty();
+
+                    if (datos !== "EMPTY") {
+
+                        $("#cmbTipoDocSubirDocumentoProveedor").append(
+                            $("<option value='' selected>(Seleccionar...)</option>")
+                        );
+
+                        $(datos).each(function() {
+                            $("#cmbTipoDocSubirDocumentoProveedor").append(
+                                $("<option></option>")
+                                    .val(this.CODIGO_DOC)
+                                    .attr("data-id-doc", this.ID)
+                                    .text(this.NOMBRE_DOC)
+                            );
+                        });
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) { }
+            });
+
+        } else {
+            $('#cmbTipoDocSubirDocumentoProveedor').empty();
+
+            $("#cmbTipoDocSubirDocumentoProveedor").append(
+                $("<option value='' selected>(Seleccionar...)</option>")
+            );
         }
+    }
+
+    // Este evento queda FUERA de la función
+    $(document).on("change", "#cmbTipoDocSubirDocumentoProveedor", function() {
+
+        var idDocumento = $(this)
+            .find("option:selected")
+            .attr("data-id-doc");
+
+        $("#idDoc").val(idDocumento || "");
+
+    });
+
 
         function CargarDocumentosDelProveedor(rutProveedor) {
             IniciarDocumentosDelProveedor();

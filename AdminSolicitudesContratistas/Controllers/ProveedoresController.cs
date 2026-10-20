@@ -1,18 +1,23 @@
-﻿using System;
+﻿using AdminSolicitudesContratistas.Models;
+using AdminSolicitudesContratistas.Models.GesintelMethods;
+using AdminSolicitudesContratistas.Models.GesintelModel;
+using AdminSolicitudesContratistas.Models.ViewModels;
+//conexion api correo
+using AdminSolicitudesContratistas.Services;
+using ClosedXML.Excel;
+using Microsoft.Ajax.Utilities;
+using Microsoft.Win32;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.Entity.Core.Objects;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-
-using AdminSolicitudesContratistas.Models;
-using AdminSolicitudesContratistas.Models.ViewModels;
-using AdminSolicitudesContratistas.Models.GesintelModel;
-using AdminSolicitudesContratistas.Models.GesintelMethods;
-using Newtonsoft.Json;
-using ClosedXML.Excel;
-using System.Data.Entity.Core.Objects;
+using System.Windows.Interop;
 
 namespace AdminSolicitudesContratistas.Controllers
 {
@@ -842,200 +847,371 @@ namespace AdminSolicitudesContratistas.Controllers
             string cmbAreaSubirDocumentoProveedor, string cmbTipoDocSubirDocumentoProveedor, int txtAñoDocSubirDocumentoProveedor,
             string cmbVisibleAlProveedorSubirDocProv, string txtPalabrasClaveDocumentoProveedor)
         {
-            try
+
+            int idTipoDocumento;
+
+            if (!int.TryParse(Request.Form["idDoc"], out idTipoDocumento))
             {
-                if (Request.IsAjaxRequest())
+                System.Diagnostics.Debug.WriteLine(
+                    "No se recibió un ID de documento válido."
+                );
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "ID del documento: " + idTipoDocumento
+                );
+            }
+
+            if ("S".Equals(cmbVisibleAlProveedorSubirDocProv, StringComparison.OrdinalIgnoreCase) && idTipoDocumento != 3123)
+            {
+
+
+                /*
+                 * RCC-TEST-002
+                 * Prueba de envío con plantilla HTML institucional.
+                 * Ambiente: Desarrollo.
+                 * IMPORTANTE: Retirar antes de publicar.
+                 */
+                try
                 {
-                    if (fileSubirDocumentoProveedor != null)
+                    using (dsSolicitudesMOP db = new dsSolicitudesMOP())
                     {
-                        //VALIDACIÓN EXTENSIÓN                    
-                        if (fileSubirDocumentoProveedor.FileName.EndsWith("pdf"))
+                        var datosProveedor = db.SP_MOP_TRAER_PROVEEDOR_POR_RUT(hiddenRutProveedorSubirDoc).ToList();
+                        var datosEstadoProveedor = db.SP_MOP_TRAER_ESTADOS_PROVEEDOR(hiddenRutProveedorSubirDoc).ToList();
+                        var jsonResult = new JsonResult();
+                        int cant = datosProveedor.Count;
+
+
+
+                        if (cant > 0)
                         {
-                            //VALIDACION DESCRIPCION
-                            if (txtDescripcionSubirDocumentoProveedor.Length > 0)
+                            var proveedor = datosProveedor[0];
+                            var EstadoProveedor = datosEstadoProveedor[0];
+                            try
                             {
-                                //VAIDACION TIPO DOCUMENTO
-                                if (cmbTipoDocSubirDocumentoProveedor != null)
+                                // Generar HTML con datos ficticios
+                                //string RazonSocial,
+                                //string RutProveedor,
+                                //string TipoRegistro,
+                                //string NombreDocumento,
+                                //DateTime FechaPublicacion,
+                                //string CorreoRegistro,
+                                //string Asunto,
+                                //string Mensaje)
+                                string fileName = Path.GetFileName(fileSubirDocumentoProveedor.FileName);
+                                string fechaMensaje = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+                                string tipoDoc = cmbTipoDocSubirDocumentoProveedor;
+                                string swAsunto;
+                                string swCuerpo;
+                                //se agrega el correo de registro
+                                string CorreoRegistro = ConfigurationManager.AppSettings["CorreoRegistro"];
+
+                                switch (idTipoDocumento)
                                 {
-                                    //VALIDACION AÑO
-                                    //if (txtAñoDocSubirDocumentoProveedor.ToString().Length > 0) {                               }
-                                    //VALIDACIÓN PALABRAS CLAVE
-                                    if (txtPalabrasClaveDocumentoProveedor.Length > 0)
-                                    {
+                                    case 3117:
+                                        // Oficio Suspensión Consultor
+                                        swAsunto = ConfigurationManager.AppSettings["asuntoP-01"];
+                                        swCuerpo = ConfigurationManager.AppSettings["P-01"];
+                                        break;
 
-                                        ProveedorView prov = new ProveedorView();
-                                        string rutProveedor = hiddenRutProveedorSubirDoc;
-                                        prov = SQLMethods.TraerDatosProveedor(rutProveedor);
+                                    case 3118:
+                                        // Oficio Eliminación Consultor
+                                        swAsunto = ConfigurationManager.AppSettings["asuntoP-02"];
+                                        swCuerpo = ConfigurationManager.AppSettings["P-02"];
+                                        break;
 
-                                        string fechaTmp = DateTime.Now.ToString("ddMMyyyyHHmmss");
-                                        string fileName = Path.GetFileName(fileSubirDocumentoProveedor.FileName);
-                                        string folder = rutProveedor.Replace("-", "_") + "_" + fechaTmp;
-                                        string folderPath = Path.Combine(Server.MapPath("~/Content/TempUploadedFiles/"), folder);
-                                        string path = Path.Combine(Server.MapPath("~/Content/TempUploadedFiles/"), folder, fileName);
+                                    case 3119:
+                                        // Oficio Suspensión Contratista
+                                        swAsunto = ConfigurationManager.AppSettings["asuntoP-03"];
+                                        swCuerpo = ConfigurationManager.AppSettings["P-03"];
+                                        break;
 
-                                        Directory.CreateDirectory(folderPath);
+                                    case 3120:
+                                        // Oficio Eliminación Contratista
+                                        swAsunto = ConfigurationManager.AppSettings["asuntoP-04"];
+                                        swCuerpo = ConfigurationManager.AppSettings["P-04"];
+                                        break;
 
-                                        string descripcion = txtDescripcionSubirDocumentoProveedor;
-                                        string areaDoc = cmbAreaSubirDocumentoProveedor;
-                                        string tipoDoc = cmbTipoDocSubirDocumentoProveedor;
-                                        int año = txtAñoDocSubirDocumentoProveedor;
-                                        string visibleAlProv = cmbVisibleAlProveedorSubirDocProv; //S o N
-                                        string palabrasClave = txtPalabrasClaveDocumentoProveedor;
+                                    case 3121:
+                                        // Resolución
+                                        swAsunto = ConfigurationManager.AppSettings["asuntoP-05"];
+                                        swCuerpo = ConfigurationManager.AppSettings["P-05"];
+                                        break;
 
-                                        //SE GUARDA ARCHIVO EN RUTA TMP PARA LUEGO SUBIRLO A GESINTEL, Y LUEGO SE ELIMINA
-                                        fileSubirDocumentoProveedor.SaveAs(path);
+                                    case 3122:
+                                        // Observaciones / Alcances
+                                        swAsunto = ConfigurationManager.AppSettings["asuntoP-06"];
+                                        swCuerpo = ConfigurationManager.AppSettings["P-06"];
+                                        break;
 
-                                        //SUBIDA A GESINTEL
-                                        AuthenticateResponse token = Models.GesintelMethods.Token.gesintelLoginToken();
-                                        if (token.Status == "OK")
-                                        {
-                                            SendDocumentPayload doc = new SendDocumentPayload();
-                                            SendDocumentResponse resp = new SendDocumentResponse();
-
-                                            doc.Type = "MOP";
-                                            doc.Code = prov.EntCode; //entcode
-                                            doc.Name = fileSubirDocumentoProveedor.FileName; //filename
-                                            doc.Rut = rutProveedor; //rutproveedor
-                                            switch (prov.TipoProveedor)
-                                            {
-                                                case 18:
-                                                    doc.ProviderType = "Person";//Tipo Proveedor: NATURAL=PERSON
-                                                    break;
-                                                case 19:
-                                                    doc.ProviderType = "Entity";//Tipo Proveedor: JURÍDICA - ENTITY
-                                                    break;
-                                            }
-                                            doc.ProviderName = prov.RazonSocial; //Razón Social
-
-                                            //Byte[] byteFile = File.ReadAllBytes(rutaArchivoAConvertir);
-                                            Byte[] byteFile = System.IO.File.ReadAllBytes(path);
-                                            string base64File = Convert.ToBase64String(byteFile);
-                                            doc.Content = base64File;
-
-                                            resp = Models.GesintelMethods.RestMethods.SendDocument(token.Token, doc);
-
-                                            if (resp.status == "OK")
-                                            {
-                                                MOPArchivoPrivado arch = new MOPArchivoPrivado();
-                                                string tmpFileName = fileSubirDocumentoProveedor.FileName;
-                                                int lastDotIndex = tmpFileName.LastIndexOf('.');
-                                                string soloNombre = tmpFileName.Substring(0, lastDotIndex);
-                                                /////////////////////////////////////////////////////////////
-                                                /////////////////////////////////////////////////////////////
-                                                arch.NomArchivo = soloNombre;
-                                                //string ext = tmpFileName.Substring(lastDotIndex, tmpFileName.Length); //extensión de archivo
-                                                string ext = tmpFileName.Substring(lastDotIndex + 1); //extensión de archivo                                                                                                    
-                                                arch.Tipo = ext;
-                                                arch.Fecha = DateTime.Now;
-                                                arch.Descripcion = descripcion;
-                                                arch.Tamano = (decimal)fileSubirDocumentoProveedor.ContentLength;
-                                                arch.IdArchivo = long.Parse(resp.Folio);
-                                                arch.UsuarioIngresoReg = Session["SessionNombreUsuario"].ToString();//identityName -- RUT PROVEEDOR
-                                                arch.FechaIngresoReg = DateTime.Now;
-                                                arch.UsuarioModReg = Session["SessionNombreUsuario"].ToString();
-                                                arch.FechaModReg = DateTime.Now;
-                                                arch.ParentId = prov.Id;//idProveedor
-                                                arch.IdInstitucion = 21; //idMandanteMOP
-                                                arch.FechaInicioVigencia = DateTime.Now;
-                                                arch.FechaFinVigencia = DateTime.Now.AddYears(1);
-                                                arch.IdDocSolicitado = 0; //0
-                                                arch.RutProveedor = rutProveedor;
-                                                arch.TipoDocumento = "INT";
-
-                                                //SE INSERTA REGISTRO EN DB
-                                                int idArchivoPrivado = SQLMethods.InsertarMOPArchivoPrivado(arch);
-
-                                                MOPMetaDatosDocumentos mmd = new MOPMetaDatosDocumentos();
-                                                mmd.IdDoc = idArchivoPrivado;
-                                                mmd.VisibleProv = visibleAlProv; //S o N
-                                                mmd.PalabrasClave = palabrasClave;
-                                                mmd.Anio = año;
-                                                mmd.CodTipoDocumento = tipoDoc;
-                                                mmd.CodAreaAnalisis = areaDoc;
-                                                mmd.FechaIngresoReg = DateTime.Now;
-                                                mmd.UsuarioIngresoReg = Session["SessionNombreUsuario"].ToString();
-
-                                                //SE REGISTRA EN DB
-                                                SQLMethods.InsertarMetadatosDocumento(mmd);
-
-
-                                                //AL FINAL, SE ELIMINA EL ARCHIVO DE LA RUTA TEMP
-                                                if (System.IO.File.Exists(path))
-                                                {
-                                                    //System.IO.File.Delete(path);
-                                                    System.IO.Directory.Delete(folderPath, true);//con true borra el directorio y todo su contenido
-                                                }
-
-
-                                            }
-                                            else
-                                            {
-                                                //ViewBag.MsgSubirArchivo = "Error al conectar a Repositorio Gesintel - Error de subida: " + resp.status;
-                                                return Json(new { success = false, message = "Error al conectar a Repositorio Gesintel - Error de subida: " + resp.status });
-                                            }
-                                        }
-                                        else
-                                        {
-                                            //ViewBag.MsgSubirArchivo = "Error al conectar a Repositorio Gesintel - Token error: " + token.Status;
-                                            return Json(new { success = false, message = "Error al conectar a Repositorio Gesintel - Token error: " + token.Status });
-                                        }
-
-                                    }
-                                    else
-                                    {
-                                        //ViewBag.MsgSubirArchivo = "Debe indicar las palabras clave";
-                                        return Json(new { success = false, message = "Debe indicar las palabras clave" });
-                                    }
+                                    default:
+                                        // Tipo de documento no contemplado
+                                        swAsunto = "";
+                                        swCuerpo = "";
+                                        break;
                                 }
-                                else
+
+
+
+                                string cuerpoHtml = PlantillaCorreoService.PlantillaCorreos(
+                                    proveedor.RazonSocial,
+                                    proveedor.Rut,
+                                    EstadoProveedor.TipoRegistro,
+                                    fileName,
+                                    fechaMensaje,
+                                    CorreoRegistro,
+                                    swAsunto,
+                                    swCuerpo
+                                );
+
+                                // Consumir API REST corporativa
+                                var correoService = new CorreoApiService();
+
+                                string respuesta = Task.Run(() =>
+                                    correoService.EnviarCorreoAsync(
+                                        "rodrigo.aguilar@mop.gov.cl",
+                                        "rodrigo.aguilar@mop.gov.cl",
+                                        swAsunto,
+                                        cuerpoHtml,
+                                        ""
+                                    )
+                                ).GetAwaiter().GetResult();
+
+                                System.Diagnostics.Debug.WriteLine(
+                                    "Respuesta API correo: " + respuesta
+                                );
+
+                                return Json(new
                                 {
-                                    //ViewBag.MsgSubirArchivo = "Debe indicar un tipo de documento";
-                                    //return View("Index");
-                                    return Json(new { success = false, message = "Debe indicar un tipo de documento" });
-                                }
+                                    success = true,
+                                    message = "API de correo respondió correctamente.",
+                                    respuestaApi = respuesta
+                                });
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                //ViewBag.MsgSubirArchivo = "Debe indicar una descripción";                                
-                                return Json(new { success = false, message = "Debe indicar una descripción" });
-                            }
+                                System.Diagnostics.Debug.WriteLine(
+                                    "Error API correo: " + ex.ToString()
+                                );
 
+                                return Json(new
+                                {
+                                    success = false,
+                                    message = "Error al enviar correo de prueba."
+                                });
+                            }
                         }
                         else
                         {
-                            //ViewBag.MsgSubirArchivo = "La extensión del archivo debe ser PDF";
-                            //return View("Index");                            
-                            return Json(new { success = false, message = "La extensión del archivo debe ser PDF" });
+                            jsonResult.Data = "EMPTY";
                         }
-
-
                     }
-                    else
-                    {
-                        //ViewBag.MsgSubirArchivo = "Debe adjuntar un archivo";                        
-                        return Json(new { success = false, message = "Debe adjuntar un archivo" });
-                    }
-
-
-                    string msg = "Archivo Subido Correctamente";
-                    return Json(new { success = false, message = msg });
                 }
-                else
+                catch (Exception)
                 {
-                    string msg = "No AJAX Request";
-                    return Json(new { success = false, message = msg });
+                    throw;
                 }
-
-
-
-
-
             }
-            catch (Exception x)
-            {
-                //ViewBag.MsgSubirArchivo = "File upload failed!!: " + x.InnerException.Message.ToString();                
-                return Json(new { success = false, message = "File upload failed!!: " + x.InnerException.Message.ToString() });
-            }
+
+            return Json(new { success = false, message = "prueba" });
+
+            //try
+            //{
+            //    if (Request.IsAjaxRequest())
+            //    {
+            //        if (fileSubirDocumentoProveedor != null)
+            //        {
+            //            //VALIDACIÓN EXTENSIÓN                    
+            //            if (fileSubirDocumentoProveedor.FileName.EndsWith("pdf"))
+            //            {
+            //                //VALIDACION DESCRIPCION
+            //                if (txtDescripcionSubirDocumentoProveedor.Length > 0)
+            //                {
+            //                    //VAIDACION TIPO DOCUMENTO
+            //                    if (cmbTipoDocSubirDocumentoProveedor != null)
+            //                    {
+            //                        //VALIDACION AÑO
+            //                        //if (txtAñoDocSubirDocumentoProveedor.ToString().Length > 0) {                               }
+            //                        //VALIDACIÓN PALABRAS CLAVE
+            //                        if (txtPalabrasClaveDocumentoProveedor.Length > 0)
+            //                        {
+
+            //                            ProveedorView prov = new ProveedorView();
+            //                            string rutProveedor = hiddenRutProveedorSubirDoc;
+            //                            prov = SQLMethods.TraerDatosProveedor(rutProveedor);
+
+            //                            string fechaTmp = DateTime.Now.ToString("ddMMyyyyHHmmss");
+            //                            string fileName = Path.GetFileName(fileSubirDocumentoProveedor.FileName);
+            //                            string folder = rutProveedor.Replace("-", "_") + "_" + fechaTmp;
+            //                            string folderPath = Path.Combine(Server.MapPath("~/Content/TempUploadedFiles/"), folder);
+            //                            string path = Path.Combine(Server.MapPath("~/Content/TempUploadedFiles/"), folder, fileName);
+
+            //                            Directory.CreateDirectory(folderPath);
+
+            //                            string descripcion = txtDescripcionSubirDocumentoProveedor;
+            //                            string areaDoc = cmbAreaSubirDocumentoProveedor;
+            //                            string tipoDoc = cmbTipoDocSubirDocumentoProveedor;
+            //                            int año = txtAñoDocSubirDocumentoProveedor;
+            //                            string visibleAlProv = cmbVisibleAlProveedorSubirDocProv; //S o N
+            //                            string palabrasClave = txtPalabrasClaveDocumentoProveedor;
+
+            //                            //SE GUARDA ARCHIVO EN RUTA TMP PARA LUEGO SUBIRLO A GESINTEL, Y LUEGO SE ELIMINA
+            //                            fileSubirDocumentoProveedor.SaveAs(path);
+
+            //                            //SUBIDA A GESINTEL
+            //                            AuthenticateResponse token = Models.GesintelMethods.Token.gesintelLoginToken();
+            //                            if (token.Status == "OK")
+            //                            {
+            //                                SendDocumentPayload doc = new SendDocumentPayload();
+            //                                SendDocumentResponse resp = new SendDocumentResponse();
+
+            //                                doc.Type = "MOP";
+            //                                doc.Code = prov.EntCode; //entcode
+            //                                doc.Name = fileSubirDocumentoProveedor.FileName; //filename
+            //                                doc.Rut = rutProveedor; //rutproveedor
+            //                                switch (prov.TipoProveedor)
+            //                                {
+            //                                    case 18:
+            //                                        doc.ProviderType = "Person";//Tipo Proveedor: NATURAL=PERSON
+            //                                        break;
+            //                                    case 19:
+            //                                        doc.ProviderType = "Entity";//Tipo Proveedor: JURÍDICA - ENTITY
+            //                                        break;
+            //                                }
+            //                                doc.ProviderName = prov.RazonSocial; //Razón Social
+
+            //                                //Byte[] byteFile = File.ReadAllBytes(rutaArchivoAConvertir);
+            //                                Byte[] byteFile = System.IO.File.ReadAllBytes(path);
+            //                                string base64File = Convert.ToBase64String(byteFile);
+            //                                doc.Content = base64File;
+
+            //                                resp = Models.GesintelMethods.RestMethods.SendDocument(token.Token, doc);
+
+            //                                if (resp.status == "OK")
+            //                                {
+            //                                    MOPArchivoPrivado arch = new MOPArchivoPrivado();
+            //                                    string tmpFileName = fileSubirDocumentoProveedor.FileName;
+            //                                    int lastDotIndex = tmpFileName.LastIndexOf('.');
+            //                                    string soloNombre = tmpFileName.Substring(0, lastDotIndex);
+            //                                    /////////////////////////////////////////////////////////////
+            //                                    /////////////////////////////////////////////////////////////
+            //                                    arch.NomArchivo = soloNombre;
+            //                                    //string ext = tmpFileName.Substring(lastDotIndex, tmpFileName.Length); //extensión de archivo
+            //                                    string ext = tmpFileName.Substring(lastDotIndex + 1); //extensión de archivo                                                                                                    
+            //                                    arch.Tipo = ext;
+            //                                    arch.Fecha = DateTime.Now;
+            //                                    arch.Descripcion = descripcion;
+            //                                    arch.Tamano = (decimal)fileSubirDocumentoProveedor.ContentLength;
+            //                                    arch.IdArchivo = long.Parse(resp.Folio);
+            //                                    arch.UsuarioIngresoReg = Session["SessionNombreUsuario"].ToString();//identityName -- RUT PROVEEDOR
+            //                                    arch.FechaIngresoReg = DateTime.Now;
+            //                                    arch.UsuarioModReg = Session["SessionNombreUsuario"].ToString();
+            //                                    arch.FechaModReg = DateTime.Now;
+            //                                    arch.ParentId = prov.Id;//idProveedor
+            //                                    arch.IdInstitucion = 21; //idMandanteMOP
+            //                                    arch.FechaInicioVigencia = DateTime.Now;
+            //                                    arch.FechaFinVigencia = DateTime.Now.AddYears(1);
+            //                                    arch.IdDocSolicitado = 0; //0
+            //                                    arch.RutProveedor = rutProveedor;
+            //                                    arch.TipoDocumento = "INT";
+
+            //                                    //SE INSERTA REGISTRO EN DB
+            //                                    int idArchivoPrivado = SQLMethods.InsertarMOPArchivoPrivado(arch);
+
+            //                                    MOPMetaDatosDocumentos mmd = new MOPMetaDatosDocumentos();
+            //                                    mmd.IdDoc = idArchivoPrivado;
+            //                                    mmd.VisibleProv = visibleAlProv; //S o N
+            //                                    mmd.PalabrasClave = palabrasClave;
+            //                                    mmd.Anio = año;
+            //                                    mmd.CodTipoDocumento = tipoDoc;
+            //                                    mmd.CodAreaAnalisis = areaDoc;
+            //                                    mmd.FechaIngresoReg = DateTime.Now;
+            //                                    mmd.UsuarioIngresoReg = Session["SessionNombreUsuario"].ToString();
+
+            //                                    //SE REGISTRA EN DB
+            //                                    SQLMethods.InsertarMetadatosDocumento(mmd);
+
+            //                                    //AL FINAL, SE ELIMINA EL ARCHIVO DE LA RUTA TEMP
+            //                                    if (System.IO.File.Exists(path))
+            //                                    {
+            //                                        //System.IO.File.Delete(path);
+            //                                        System.IO.Directory.Delete(folderPath, true);//con true borra el directorio y todo su contenido
+            //                                    }
+
+
+            //                                }
+            //                                else
+            //                                {
+            //                                    //ViewBag.MsgSubirArchivo = "Error al conectar a Repositorio Gesintel - Error de subida: " + resp.status;
+            //                                    return Json(new { success = false, message = "Error al conectar a Repositorio Gesintel - Error de subida: " + resp.status });
+            //                                }
+            //                            }
+            //                            else
+            //                            {
+            //                                //ViewBag.MsgSubirArchivo = "Error al conectar a Repositorio Gesintel - Token error: " + token.Status;
+            //                                return Json(new { success = false, message = "Error al conectar a Repositorio Gesintel - Token error: " + token.Status });
+            //                            }
+
+            //                        }
+            //                        else
+            //                        {
+            //                            //ViewBag.MsgSubirArchivo = "Debe indicar las palabras clave";
+            //                            return Json(new { success = false, message = "Debe indicar las palabras clave" });
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        //ViewBag.MsgSubirArchivo = "Debe indicar un tipo de documento";
+            //                        //return View("Index");
+            //                        return Json(new { success = false, message = "Debe indicar un tipo de documento" });
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    //ViewBag.MsgSubirArchivo = "Debe indicar una descripción";                                
+            //                    return Json(new { success = false, message = "Debe indicar una descripción" });
+            //                }
+
+            //            }
+            //            else
+            //            {
+            //                //ViewBag.MsgSubirArchivo = "La extensión del archivo debe ser PDF";
+            //                //return View("Index");                            
+            //                return Json(new { success = false, message = "La extensión del archivo debe ser PDF" });
+            //            }
+
+
+            //        }
+            //        else
+            //        {
+            //            //ViewBag.MsgSubirArchivo = "Debe adjuntar un archivo";                        
+            //            return Json(new { success = false, message = "Debe adjuntar un archivo" });
+            //        }
+
+
+            //        string msg = "Archivo Subido Correctamente";
+            //        return Json(new { success = false, message = msg });
+
+
+
+            //    }
+            //    else
+            //    {
+            //        string msg = "No AJAX Request";
+            //        return Json(new { success = false, message = msg });
+            //    }
+
+
+
+
+
+            //}
+            //catch (Exception x)
+            //{
+            //    //ViewBag.MsgSubirArchivo = "File upload failed!!: " + x.InnerException.Message.ToString();                
+            //    return Json(new { success = false, message = "File upload failed!!: " + x.InnerException.Message.ToString() });
+            //}
         }
 
 
