@@ -255,6 +255,7 @@
     </Compile>
     <Compile Include="Models\ArchivosAdjuntosEnviarAnalisis.cs" />
     <Compile Include="Models\CheckAuthorization.cs" />
+    <Compile Include="Models\DestinatarioCorreoArea.cs" />
     <Compile Include="Models\DocumentosResolucionProveedorRespSP.cs" />
     <Compile Include="Models\EnvioCorreosMOP.cs" />
     <Compile Include="Models\EspecialidadView.cs" />

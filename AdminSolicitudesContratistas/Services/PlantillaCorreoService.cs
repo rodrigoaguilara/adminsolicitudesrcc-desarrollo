@@ -73,7 +73,7 @@ namespace AdminSolicitudesContratistas.Services
                 </table>
 
                 <!-- Texto de Introducción -->
-                <p style=""margin: 10px 0 20px 0; font-size: 17xpx; color: #333333; line-height: 1.6; text-align: justify;"">
+                <p style=""margin: 10px 0 20px 0; font-size: 17px; color: #333333; line-height: 1.6; text-align: justify;"">
                     {{Mensaje}}
                 </p>
                 <!-- Nota informativa de seguridad -->
@@ -127,9 +127,52 @@ namespace AdminSolicitudesContratistas.Services
 
             // Incorporar el mensaje procesado a la plantilla
             return cuerpo
-                .Replace("{{Mensaje}}", mensajeFinal)
-                .Replace("{{Asunto}}", WebUtility.HtmlEncode(Asunto ?? ""));
+    .Replace("{{Mensaje}}", mensajeFinal)
+    .Replace("{{Asunto}}", WebUtility.HtmlEncode(Asunto ?? ""));
 
+        }  // Termina el método original del Requerimiento 1
+
+
+        // AQUÍ PEGAS EL MÉTODO NUEVO DEL REQUERIMIENTO 2
+
+        public static string PlantillaCorreos(
+            string NroSolicitud,
+            string RazonSocial,
+            string RutEmpresa,
+            string TipoRegistro,
+            string TipoSolicitud,
+            string EstadoSolicitud,
+            string FechaEnvioAnalisis,
+            string AreaAnalisis,
+            string ListadoDocumentos,
+            string Asunto,
+            string Mensaje)
+        {
+            string mensajeFinal = (Mensaje ?? "")
+                .Replace("{{NroSolicitud}}", NroSolicitud ?? "")
+                .Replace("{{RazonSocial}}", RazonSocial ?? "")
+                .Replace("{{RutEmpresa}}", RutEmpresa ?? "")
+                .Replace("{{TipoRegistro}}", TipoRegistro ?? "")
+                .Replace("{{TipoSolicitud}}", TipoSolicitud ?? "")
+                .Replace("{{EstadoSolicitud}}", EstadoSolicitud ?? "")
+                .Replace("{{FechaEnvioAnalisis}}", FechaEnvioAnalisis ?? "")
+                .Replace("{{AreaAnalisis}}", AreaAnalisis ?? "")
+                .Replace("{{ListadoDocumentos}}", ListadoDocumentos ?? "");
+
+            string asuntoFinal = (Asunto ?? "")
+                .Replace("{{NroSolicitud}}", NroSolicitud ?? "");
+
+            return PlantillaCorreos(
+                RazonSocial,
+                RutEmpresa,
+                TipoRegistro,
+                "",
+                "",
+                "",
+                asuntoFinal,
+                mensajeFinal
+            );
         }
-    }
-}
+
+    }  // Termina la clase PlantillaCorreoService
+}      // Termina el namespace

@@ -1312,6 +1312,10 @@ namespace AdminSolicitudesContratistas.Controllers
                     string codEstadoSolicitud = hiddenCodEstadoSolicitud;
                     string codTipoSolicitud = hiddenCodTipoSolicitud;
                     string comentariosAnalista = txtComentariosAceptarSolicitud;
+                    //agrego region solicitud
+                    int CodRegionSolMail = hiddenCodRegion;
+                    //agrego tipo registro proveedor
+                    string CodTipoRegistroSolMail = hiddenCodTipoRegistro;
                     string nombreAreaAnalisis = "";
                     string respCorreo = "";
                     List<SP_MOP_DETALLE_SOLICITUD_POR_TIPO_Result> listAdjuntosResultadoAnalisis = TraerDetalleSolicitudRepositorio(numSolicitud);
@@ -1558,7 +1562,9 @@ namespace AdminSolicitudesContratistas.Controllers
 
 
                                             //ENVIO DE CORREO
+                                            //respCorreo = EnvioCorreosMOP.EnviarNotificacion_ResponderAnalisis(numSolicitud, nombreAreaAnalisis);
                                             respCorreo = EnvioCorreosMOP.EnviarNotificacion_ResponderAnalisis(numSolicitud, nombreAreaAnalisis);
+
 
 
 
@@ -1836,7 +1842,8 @@ namespace AdminSolicitudesContratistas.Controllers
                                             //ENVIO DE CORREO
                                             //string emailProv = "";
                                             string emailProv = hiddenEmailProveedor;
-                                            respCorreo = EnvioCorreosMOP.EnviarNotificacion_ResolucionFinalProveedor(numSolicitud, emailProv, funcionarioMOP);
+                                            //respCorreo = EnvioCorreosMOP.EnviarNotificacion_ResolucionFinalProveedor(numSolicitud, emailProv, funcionarioMOP);
+                                            respCorreo = EnvioCorreosMOP.EnviarNotificacion_ResolucionFinalProveedor(numSolicitud, "rodrigo.aguilar@mop.gov.cl", funcionarioMOP);
 
                                             //AL FINAL, SE ELIMINA EL ARCHIVO DE LA RUTA TEMP
                                             if (System.IO.File.Exists(path))
@@ -1950,7 +1957,7 @@ namespace AdminSolicitudesContratistas.Controllers
                             solEan.CodEstadoCHP = "EAN";
                             solEan.FechaIngreso = DateTime.Now;
                             solEan.SolPadreRespondida = "";//en WebMOP no mandaba nada, pero deberíamos mandar vacío para q no quede null
-                            SQLSolicitudesMOP.ActualizarEstadoSolicitud(solEan);
+                            //******SQLSolicitudesMOP.ActualizarEstadoSolicitud(solEan);
 
                             List<ArchivosAdjuntosEnviarAnalisis> adj = JsonConvert.DeserializeObject<List<ArchivosAdjuntosEnviarAnalisis>>(hiddenListDocs);
                             foreach (var item in adj)
@@ -1960,25 +1967,33 @@ namespace AdminSolicitudesContratistas.Controllers
                                 detEan.CodAreaAnalisis = item.areaDeAnalisis;
                                 detEan.CodEstado = "EAN";
                                 detEan.Comentario = "";
+                                //actualiza los estados de documentos y el area que realizara el analisis
                                 SQLSolicitudesMOP.ActualizarEstadoDetalleSolicitud(detEan);
 
                                 //ACÁ DEBERÍAMOS CREAR UN NUEVO LOG, DE QUÉ ARCHIVOS SE ENVIAN A ÁREAS DE ANÁLISIS, PARA TENER SU HISTORIAL
                             }
 
-                            //GUARDAR LOG
-                            MOPLog logEnvioAnalisis = new MOPLog();
-                            logEnvioAnalisis.Fecha = DateTime.Now;
-                            logEnvioAnalisis.RutProveedor = rutProveedor;
-                            logEnvioAnalisis.Usuario = Session["SessionNombreUsuario"].ToString();
-                            logEnvioAnalisis.idSol = numSolicitud;
-                            logEnvioAnalisis.idDoc = 0;
-                            logEnvioAnalisis.CodTipo = "LSOL";
-                            logEnvioAnalisis.CodEstado = "EAN";
-                            logEnvioAnalisis.Comentario_1 = "Solicitud enviada a Análisis";
-                            logEnvioAnalisis.Comentario_2 = "La solicitud [" + numSolicitud.ToString() + "] es enviada a Análisis";
-                            logEnvioAnalisis.Comentario_3 = comentariosAnalista;
-                            SQLSolicitudesMOP.GuardarMOPLog(logEnvioAnalisis, funcionarioMOP);
+                            ////GUARDAR LOG**************************
+                            //MOPLog logEnvioAnalisis = new MOPLog();
+                            //logEnvioAnalisis.Fecha = DateTime.Now;
+                            //logEnvioAnalisis.RutProveedor = rutProveedor;
+                            //logEnvioAnalisis.Usuario = Session["SessionNombreUsuario"].ToString();
+                            //logEnvioAnalisis.idSol = numSolicitud;
+                            //logEnvioAnalisis.idDoc = 0;
+                            //logEnvioAnalisis.CodTipo = "LSOL";
+                            //logEnvioAnalisis.CodEstado = "EAN";
+                            //logEnvioAnalisis.Comentario_1 = "Solicitud enviada a Análisis";
+                            //logEnvioAnalisis.Comentario_2 = "La solicitud [" + numSolicitud.ToString() + "] es enviada a Análisis";
+                            //logEnvioAnalisis.Comentario_3 = comentariosAnalista;
+                            //SQLSolicitudesMOP.GuardarMOPLog(logEnvioAnalisis, funcionarioMOP);
 
+                            //Enviar Mail de Analisis a los analistas por area solo regiones
+                            //agrego region solicitud
+                            if (CodRegionSolMail != 13 && CodTipoRegistroSolMail.ToUpper() == Convert.ToString("CME").ToUpper())
+                            {
+                                respCorreo = EnvioCorreosMOP.EnviarNotificacion_EnvioAnalisis(numSolicitud, rutProveedor);
+                                //Enviar Mail de Analisis a los analistas por area solo regiones
+                            }
                             #endregion
                             break;
                         case "SCO"://SOLICITAR CORRECCIONES VA SIN DOC 
@@ -2022,7 +2037,8 @@ namespace AdminSolicitudesContratistas.Controllers
                             string emailProveedor = hiddenEmailProveedor;
                             //ENVIAR CORREO
                             //string funcionarioMOP = Session["SessionNombreUsuario"].ToString();
-                            respCorreo = EnvioCorreosMOP.EnviarNotificacion_SolicitarCorreccionesProveedor(numSolicitud, emailProveedor, funcionarioMOP);
+                            //respCorreo = EnvioCorreosMOP.EnviarNotificacion_SolicitarCorreccionesProveedor(numSolicitud, emailProveedor, funcionarioMOP);
+                            respCorreo = EnvioCorreosMOP.EnviarNotificacion_SolicitarCorreccionesProveedor(numSolicitud, "rodrigo.aguilar@mop.gov.cl", funcionarioMOP);
 
                             #endregion
                             break;
